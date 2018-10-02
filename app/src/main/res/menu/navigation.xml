@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_bluetooth"
+        android:icon="@drawable/btn_menu_a"
+        android:title="@string/menu_bluetooth" />
+
+    <item
+        android:id="@+id/navigation_modiplay"
+        android:icon="@drawable/btn_menu_b"
+        android:title="@string/menu_modiplay" />
+
+    <item
+        android:id="@+id/navigation_user"
+        android:icon="@drawable/btn_menu_c"
+        android:title="@string/menu_user" />
+
+</menu>

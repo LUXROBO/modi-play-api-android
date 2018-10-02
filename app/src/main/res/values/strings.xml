@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">ModiPlayApi</string>
+
+    <!--menu-->
+    <string name="menu_bluetooth">Bluetooth</string>
+    <string name="menu_modiplay">MODI Play</string>
+    <string name="menu_user">User</string>
+
+    <!--page1-->
+    <string name="button_scan">Scan</string>
+    <string name="button_disconnect">Disconnect</string>
+    <string name="not_connected">not connected</string>
+</resources>
