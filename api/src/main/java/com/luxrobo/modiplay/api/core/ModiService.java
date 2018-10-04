@@ -334,6 +334,7 @@ public class ModiService extends Service {
 
     /**
      * Initialize BluetoothManager
+     *
      * @return result
      */
     public boolean initialize() {
@@ -360,6 +361,7 @@ public class ModiService extends Service {
 
     /**
      * Connects to the GATT server hosted on the Bluetooth LE device.
+     *
      * @param address The device address of the destination device.
      * @return Return true if the connection is initiated successfully. The connection result
      * is reported asynchronously through the
@@ -454,6 +456,7 @@ public class ModiService extends Service {
 
     /**
      * After using a given BLE device, the app must call this method to ensure resources are released properly.
+     *
      * @param gattCloseListener GattCloseListener
      */
     public void close(final GattCloseListener gattCloseListener) {
@@ -528,6 +531,7 @@ public class ModiService extends Service {
 
     /**
      * BluetoothGatt Refresh Device
+     *
      * @return result
      */
     public boolean refreshGatt() {
@@ -552,6 +556,7 @@ public class ModiService extends Service {
 
     /**
      * Remove bond
+     *
      * @param device
      * @return result
      * @throws Exception
@@ -568,6 +573,7 @@ public class ModiService extends Service {
 
     /**
      * Remove bond
+     *
      * @param deviceAddress
      * @return result
      */
@@ -615,6 +621,7 @@ public class ModiService extends Service {
 
     /**
      * Return device connected state
+     *
      * @param deviceAddress
      * @return device connected state
      * @throws Exception
@@ -639,7 +646,7 @@ public class ModiService extends Service {
      * Reflection System API
      * get BLE enable state
      *
-     * @return  BLE enable state
+     * @return BLE enable state
      */
     private boolean isLeEnabled() {
 
@@ -701,6 +708,7 @@ public class ModiService extends Service {
      * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
      * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
      * callback.
+     *
      * @param characteristic The characteristic to read from.
      */
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
@@ -720,6 +728,7 @@ public class ModiService extends Service {
      * Request a write on a given {@code BluetoothGattCharacteristic}. The write result is reported
      * asynchronously through the {@code BluetoothGattCallback#onCharacteristicWrite(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
      * callback.
+     *
      * @param characteristic The characteristic to write  from.
      */
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
@@ -782,6 +791,7 @@ public class ModiService extends Service {
 
     /**
      * Bluetooth GATT Service
+     *
      * @param uuid Service UUID
      * @return Bluetooth GATT Service
      */
@@ -798,6 +808,7 @@ public class ModiService extends Service {
 
     /**
      * Write BLE Descriptor
+     *
      * @param descriptor
      */
     public void writeDescriptor(BluetoothGattDescriptor descriptor) {
@@ -813,6 +824,7 @@ public class ModiService extends Service {
     /**
      * Retrieves a list of supported GATT services on the connected device. This should be
      * invoked only after {@code BluetoothGatt#discoverServices()} completes successfully.
+     *
      * @return A {@code List} of supported services.
      */
     public List<BluetoothGattService> getSupportedGattServices() {
@@ -824,7 +836,8 @@ public class ModiService extends Service {
 
     /**
      * Add Characteristic Request on queue
-     * @param method RequestQueue READ/WRITE/NOTIFY
+     *
+     * @param method         RequestQueue READ/WRITE/NOTIFY
      * @param characteristic BluetoothGattCharacteristic
      */
     public void addRequest(String method, BluetoothGattCharacteristic characteristic) {
@@ -833,9 +846,10 @@ public class ModiService extends Service {
 
     /**
      * Add Characteristic Request on queue
-     * @param method RequestQueue READ/WRITE/NOTIFY
+     *
+     * @param method         RequestQueue READ/WRITE/NOTIFY
      * @param characteristic BluetoothGattCharacteristic
-     * @param notify is nofity
+     * @param notify         is nofity
      */
     public void addRequest(String method, BluetoothGattCharacteristic characteristic, boolean notify) {
         requestQueue.putRequest(method, characteristic, notify);
@@ -867,6 +881,7 @@ public class ModiService extends Service {
 
     /**
      * Check Whether command remains in request Queue
+     *
      * @return result
      */
     private boolean hasRequestJob() {
@@ -875,6 +890,7 @@ public class ModiService extends Service {
 
     /**
      * Get requestQueue size
+     *
      * @return requestQueue size
      */
     public int getRequestQueueSize() {
@@ -921,6 +937,7 @@ public class ModiService extends Service {
 
     /**
      * Check if there are pending commands
+     *
      * @return result
      */
     public boolean onQueueProcess() {
@@ -929,6 +946,7 @@ public class ModiService extends Service {
 
     /**
      * Get Connected Device Name
+     *
      * @return device name
      */
     public String getConnectedDeviceName() {

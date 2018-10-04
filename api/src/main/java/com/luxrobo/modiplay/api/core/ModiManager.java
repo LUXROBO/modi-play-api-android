@@ -39,6 +39,7 @@ import com.luxrobo.modiplay.api.client.NotifyStateClient;
 import com.luxrobo.modiplay.api.client.ServiceStateClient;
 import com.luxrobo.modiplay.api.data.DeviceInformation;
 import com.luxrobo.modiplay.api.enums.Characteristics;
+import com.luxrobo.modiplay.api.enums.State;
 import com.luxrobo.modiplay.api.listener.GattCloseListener;
 import com.luxrobo.modiplay.api.listener.ManagerStateListener;
 import com.luxrobo.modiplay.api.parser.ManufacturerDataParser;
@@ -53,45 +54,6 @@ import java.util.Locale;
 
 
 public class ModiManager {
-
-    /**
-     * modiplay button pressed state
-     */
-    public static final boolean STATE_BUTTON_PRESSED = true;
-    /**
-     * modiplay button unpressed state
-     */
-    public static final boolean STATE_BUTTON_UNPRESSED = false;
-
-    /**
-     * modiplay joystick unpressed state
-     */
-    public static final int STATE_JOYSTICK_UNPRESSED = 0;
-    /**
-     * modiplay joystick up pressed state
-     */
-    public static final int STATE_JOYSTICK_UP = 2;
-    /**
-     * modiplay joystick down pressed state
-     */
-    public static final int STATE_JOYSTICK_DOWN = 3;
-    /**
-     * modiplay joystick left pressed state
-     */
-    public static final int STATE_JOYSTICK_LEFT = 4;
-    /**
-     * modiplay joystick right pressed state
-     */
-    public static final int STATE_JOYSTICK_RIGHT = 5;
-
-    /**
-     * modiplay buzzer on state
-     */
-    public static final int STATE_BUZZER_ON = 1;
-    /**
-     * modiplay buzzer off state
-     */
-    public static final int STATE_BUZZER_OFF = 0;
 
     private Context context;
     private boolean isScanning = false;                          // 검색 여부
@@ -138,6 +100,7 @@ public class ModiManager {
 
     /**
      * get ModiManager Instance
+     *
      * @return ModiManager Instance
      */
     public static ModiManager getInstance() {
@@ -203,6 +166,7 @@ public class ModiManager {
 
     /**
      * reboot bluetooth adapter
+     *
      * @return result
      */
     public boolean rebootBluetoothAdapter() {
@@ -361,6 +325,7 @@ public class ModiManager {
 
     /**
      * set ModiClient
+     *
      * @param client ModiClient
      */
     public void setClient(ModiClient client) {
@@ -372,6 +337,7 @@ public class ModiManager {
 
     /**
      * set Context(getApplicationContext)
+     *
      * @param context
      */
     public void setContext(Context context) {
@@ -382,7 +348,7 @@ public class ModiManager {
      * initialize class object
      *
      * @param context Context
-     * @param client ModiClient
+     * @param client  ModiClient
      * @return Bluetooth enabled
      */
     public boolean init(Context context, ModiClient client) {
@@ -394,7 +360,7 @@ public class ModiManager {
     /**
      * initialize class object
      *
-     * @param context Context
+     * @param context       Context
      * @param stateListener ManagerStateListener
      * @return Bluetooth enabled
      */
@@ -405,9 +371,9 @@ public class ModiManager {
     /**
      * initialize class object
      *
-     * @param context Context
+     * @param context       Context
      * @param stateListener ManagerStateListener
-     * @param client ModiClient
+     * @param client        ModiClient
      * @return Bluetooth enabled
      */
     public boolean init(Context context, @Nullable ManagerStateListener stateListener, @Nullable ModiClient client) {
@@ -451,6 +417,7 @@ public class ModiManager {
 
     /**
      * set LogClient
+     *
      * @param client LogClient
      */
     public void setLogClient(LogClient client) {
@@ -462,6 +429,7 @@ public class ModiManager {
 
     /**
      * set NotifyStateClient
+     *
      * @param client NotifyStateClient
      */
     public void setNotifyStateClient(NotifyStateClient client) {
@@ -473,6 +441,7 @@ public class ModiManager {
 
     /**
      * set ServiceStateClient
+     *
      * @param client ServiceStateClient
      */
     public void setServiceStateClient(ServiceStateClient client) {
@@ -484,6 +453,7 @@ public class ModiManager {
 
     /**
      * set BluetoothClient
+     *
      * @param client BluetoothClient
      */
     public void setBluetoothClient(BluetoothClient client) {
@@ -535,6 +505,7 @@ public class ModiManager {
 
     /**
      * start device scan
+     *
      * @return
      */
     public boolean scan() {
@@ -591,6 +562,7 @@ public class ModiManager {
 
     /**
      * Connect as soon as the specified device is detected
+     *
      * @return connect result
      */
     public boolean scanForConnect() {
@@ -1181,6 +1153,7 @@ public class ModiManager {
 
     /**
      * set ConnectionCallback
+     *
      * @param connectionCallback ConnectionCallback
      */
     public void setConnectionCallback(ConnectionCallback connectionCallback) {
@@ -1203,6 +1176,7 @@ public class ModiManager {
 
     /**
      * disconnect device
+     *
      * @param connectionCallback ConnectionCallback
      */
     public void disconnect(ConnectionCallback connectionCallback) {
@@ -1249,6 +1223,7 @@ public class ModiManager {
 
     /**
      * disconnect permanently
+     *
      * @param connectionCallback ConnectionCallback
      */
     public void disconnectPermanently(ConnectionCallback connectionCallback) {
@@ -1258,6 +1233,7 @@ public class ModiManager {
 
     /**
      * Check Device Connection Status
+     *
      * @return is connected ?
      */
     public boolean isConnected() {
@@ -1273,7 +1249,8 @@ public class ModiManager {
     }
 
     /**
-     *  is device connected with system
+     * is device connected with system
+     *
      * @return result
      */
     public boolean isDeviceConnectedWithSystem() {
@@ -1636,14 +1613,16 @@ public class ModiManager {
                                             } else if (rawData[0] == 0x01) {
                                                 byte compareData = rawData[2];
                                                 if (rawData[1] == 0x03) {
-                                                    mModiClient.onBuzzerState(compareData);
+                                                    State.Buzzer state = (compareData == 0x01) ? State.Buzzer.ON : State.Buzzer.OFF;
+                                                    mModiClient.onBuzzerState(state);
                                                 }
                                             }
                                         } else {
                                             //프로토콜 V2
                                             byte compareData = rawData[8];
                                             if (rawData[4] == 0x00 && rawData[5] == 0x01) {
-                                                mModiClient.onBuzzerState(compareData);
+                                                State.Buzzer state = (compareData == 0x01) ? State.Buzzer.ON : State.Buzzer.OFF;
+                                                mModiClient.onBuzzerState(state);
                                             }
                                         }
                                     }
@@ -2047,6 +2026,7 @@ public class ModiManager {
 
     /**
      * send type and message to MODI Network Module
+     *
      * @param data
      */
     public void sendData(byte[] data) {
@@ -2065,8 +2045,9 @@ public class ModiManager {
 
     /**
      * send type and message to MODI Network Module
+     *
      * @param type data type
-     * @param msg data value
+     * @param msg  data value
      */
     public void sendData(int type, byte[] msg) {
         if (isConnected()) {
@@ -2125,9 +2106,10 @@ public class ModiManager {
 
     /**
      * send button state to MODI Network Module
+     *
      * @param state button state
      */
-    public void sendButtonState(boolean state) {
+    public void sendButtonState(State.Button state) {
 
         if (!isConnected()) {
             return;
@@ -2136,7 +2118,7 @@ public class ModiManager {
         if ("Luxrobo".equals(new String(getMODI_ID()))) {
             //프로토콜 V1
             byte packet[] = new byte[1];
-            packet[0] = (byte) ((state) ? 0x01 : 0x00);
+            packet[0] = (byte) ((state == State.Button.PRESSED) ? 0x01 : 0x00);
             sendData(0, packet);
         } else {
             //프로토콜 V2
@@ -2144,16 +2126,17 @@ public class ModiManager {
             for (int i = 0; i < 8; i++) {
                 packet[i] = 0x00;
             }
-            packet[0] = (byte) ((state) ? 0x01 : 0x00);
+            packet[0] = (byte) ((state == State.Button.PRESSED) ? 0x01 : 0x00);
             sendData(2, packet);
         }
     }
 
     /**
      * send joystick state to MODI Network Module
+     *
      * @param direction joystick direction
      */
-    public void sendJoystickState(int direction) {
+    public void sendJoystickState(State.Joystick direction) {
 
         if (!isConnected()) return;
 
@@ -2161,22 +2144,16 @@ public class ModiManager {
             //프로토콜 V1
             byte packet[] = new byte[1];
 
-            switch (direction) {
-                case 2:     // up
-                    packet[0] = 0x01;
-                    break;
-                case 3:     // down
-                    packet[0] = 0x04;
-                    break;
-                case 4:     // left
-                    packet[0] = 0x08;
-                    break;
-                case 5:     // right
-                    packet[0] = 0x02;
-                    break;
-                default:
-                    packet[0] = 0x00;
-                    break;
+            if (direction == State.Joystick.UP) {
+                packet[0] = 0x01;
+            } else if (direction == State.Joystick.DOWN) {
+                packet[0] = 0x04;
+            } else if (direction == State.Joystick.LEFT) {
+                packet[0] = 0x08;
+            } else if (direction == State.Joystick.RIGHT) {
+                packet[0] = 0x02;
+            } else {
+                packet[0] = 0x00;
             }
 
             sendData(2, packet);
@@ -2186,13 +2163,14 @@ public class ModiManager {
             for (int i = 0; i < 8; i++) {
                 packet[i] = 0x00;
             }
-            packet[0] = (byte) direction;
+            packet[0] = (byte) direction.state();
             sendData(3, packet);
         }
     }
 
     /**
      * send user data to MODI Network Module
+     *
      * @param data user data
      */
     public void sendUserData(int data) {
@@ -2307,6 +2285,7 @@ public class ModiManager {
 
     /**
      * get MODI Network Module ID
+     *
      * @return MODI Network Module ID
      */
     public byte[] getMODI_ID() {

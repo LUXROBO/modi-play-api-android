@@ -12,6 +12,7 @@ import android.view.MenuItem;
 
 import com.luxrobo.modiplay.api.client.ModiClient;
 import com.luxrobo.modiplay.api.core.ModiManager;
+import com.luxrobo.modiplay.api.enums.State;
 import com.luxrobo.modiplay.api.utils.ModiLog;
 import com.luxrobo.modiplay.example.adapter.DeviceItem;
 
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBuzzerState(int state) {
+        public void onBuzzerState(State.Buzzer state) {
             ((PageBFragment) mFragments[1]).onBuzzerState(state);
         }
 

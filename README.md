@@ -88,7 +88,7 @@ private ModiClient mModiClient = new ModiClient() {
         }
 
         @Override
-        public void onBuzzerState(int state) {
+        public void onBuzzerState(State.Buzzer state) {
 
         }
 
@@ -116,13 +116,13 @@ mModiManager.connect(deviceAddress);
 Send Button, Joystick State to MODI Network Module::
 ```java
 // send joystick state
-mModiManager.sendJoystickState(ModiManager.STATE_JOYSTICK_UP);
-mModiManager.sendJoystickState(ModiManager.STATE_JOYSTICK_DOWN);
-mModiManager.sendJoystickState(ModiManager.STATE_JOYSTICK_LEFT);
-mModiManager.sendJoystickState(ModiManager.STATE_JOYSTICK_RIGHT);
-mModiManager.sendJoystickState(ModiManager.STATE_JOYSTICK_UNPRESSED);
+mModiManager.sendJoystickState(State.Joystick.UP);
+mModiManager.sendJoystickState(State.Joystick.DOWN);
+mModiManager.sendJoystickState(State.Joystick.LEFT);
+mModiManager.sendJoystickState(State.Joystick.RIGHT);
+mModiManager.sendJoystickState(State.Joystick.UNPRESSED);
 
 // send button state
-mModiManager.sendButtonState(ModiManager.STATE_BUTTON_PRESSED);
-mModiManager.sendButtonState(ModiManager.STATE_BUTTON_UNPRESSED);
+mModiManager.sendButtonState(State.Button.PRESSED);
+mModiManager.sendButtonState(State.Button.UNPRESSED);
 ```

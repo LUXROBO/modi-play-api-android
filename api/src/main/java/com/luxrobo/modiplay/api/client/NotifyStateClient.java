@@ -16,6 +16,7 @@ public interface NotifyStateClient {
 
     /**
      * Callback when changed NotificationState
+     *
      * @param characteristics Characteristics
      * @param enable
      */

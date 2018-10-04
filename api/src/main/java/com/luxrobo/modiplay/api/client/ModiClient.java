@@ -11,13 +11,15 @@ package com.luxrobo.modiplay.api.client;
 
 import android.bluetooth.BluetoothDevice;
 
+import com.luxrobo.modiplay.api.enums.State;
 
 public interface ModiClient {
 
     /**
      * Callback when found device
-     * @param device BluetoothDevice
-     * @param rssi RSSI
+     *
+     * @param device     BluetoothDevice
+     * @param rssi       RSSI
      * @param scanRecord ScanResult ScanRecord
      */
     void onFoundDevice(BluetoothDevice device, int rssi, byte[] scanRecord);
@@ -39,33 +41,38 @@ public interface ModiClient {
 
     /**
      * Callback when changed the scan state
+     *
      * @param isScaning
      */
     void onScanning(boolean isScaning);
 
     /**
      * Callback when received data from MODI Network Module
+     *
      * @param data display converted raw data to ascii string
      */
     void onReceivedData(String data);
 
     /**
      * Callback when received data from MODI Network Module
+     *
      * @param data raw data
      */
     void onReceivedData(byte[] data);
 
     /**
      * Callback when received user data from `Send Data` on MODI Studio
+     *
      * @param data
      */
     void onReceivedUserData(int data);
 
     /**
      * Callback when received buzzer state from MODI Studio
-     * @param state
+     *
+     * @param state enum ModiManager.State.Buzzer
      */
-    void onBuzzerState(int state);
+    void onBuzzerState(State.Buzzer state);
 
     /**
      * Callback when event off

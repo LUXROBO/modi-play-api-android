@@ -1,10 +1,10 @@
 /*
- * Developement Part, Luxrobo INC., SEOUL, KOREA
- * Copyright(c) 2018 by Luxrobo Inc.
+ * Developement Part, LUXROBO INC., SEOUL, KOREA
+ * Copyright(c) 2018 by LUXROBO Inc.
  *
  * All rights reserved. No part of this work may be reproduced, stored in a
  * retrieval system, or transmitted by any means without prior written
- * Permission of Luxrobo Inc.
+ * Permission of LUXROBO Inc.
  */
 
 package com.luxrobo.modiplay.api.data;
@@ -45,7 +45,7 @@ public class DeviceInformation {
     /**
      * device state
      */
-    public State state = State.DISCONNECTED;
+    public State.Device state = State.Device.DISCONNECTED;
 
     private DeviceInformation() {
         deviceName = null;
@@ -54,7 +54,7 @@ public class DeviceInformation {
         hardwareRevision = null;
         firmwareRevision = null;
         softwareRevision = null;
-        state = State.DISCONNECTED;
+        state = State.Device.DISCONNECTED;
     }
 
     private static class Singleton {
@@ -63,6 +63,7 @@ public class DeviceInformation {
 
     /**
      * get DeviceInformation Instance
+     *
      * @return DeviceInformation Instance
      */
     public static DeviceInformation getInstance() {
@@ -80,6 +81,6 @@ public class DeviceInformation {
         firmwareRevision = null;
         softwareRevision = null;
         batteryLevel = 0;
-        state = State.DISCONNECTED;
+        state = State.Device.DISCONNECTED;
     }
 }

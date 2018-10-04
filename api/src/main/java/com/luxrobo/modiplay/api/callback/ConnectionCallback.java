@@ -38,6 +38,7 @@ public abstract class ConnectionCallback {
 
     /**
      * Callback when Bluetooth Device ConnectionState Changed
+     *
      * @param connectionState connection state
      */
     public void onChangedConnectionState(int connectionState) {
