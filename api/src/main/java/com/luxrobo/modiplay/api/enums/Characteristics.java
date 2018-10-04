@@ -25,14 +25,11 @@ public enum Characteristics {
     }
 
     public String code() {
-
         return this.code;
     }
 
     public static Characteristics get(String appCode) {
-
         for (Characteristics value : Characteristics.values()) {
-
             if (appCode.equalsIgnoreCase(value.code())) return value;
         }
         return null;

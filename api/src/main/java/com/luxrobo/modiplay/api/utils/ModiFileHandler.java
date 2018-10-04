@@ -38,11 +38,9 @@ public class ModiFileHandler {
 
     public ModiFileHandler(Context _context) {
         this.context = _context;
-
     }
 
     public static final Calendar convertStringToCalendar(String date, String time) {
-
         Calendar cal = Calendar.getInstance();
         String format = "yyyyMMdd";
 
@@ -58,7 +56,6 @@ public class ModiFileHandler {
             SimpleDateFormat dateFormat = new SimpleDateFormat(format);
             Date convertDate = dateFormat.parse(date + time);
             cal.setTime(convertDate);
-
         } catch (Exception e) {
             ModiLog.e(TAG, e.toString());
 
@@ -70,37 +67,30 @@ public class ModiFileHandler {
 
 
     public static final int getYear(Calendar cal) {
-
         return cal.get(Calendar.YEAR);
     }
 
     public static final int getMonth(Calendar cal) {
-
         return cal.get(Calendar.MONTH) + 1;
     }
 
     public static final int getMonthOfYear(Calendar cal) {
-
         return cal.get(Calendar.MONTH);
     }
 
     public static final int getDay(Calendar cal) {
-
         return cal.get(Calendar.DAY_OF_MONTH);
     }
 
     public static final int getHour(Calendar cal) {
-
         return cal.get(Calendar.HOUR_OF_DAY);
     }
 
     public static final int getMinute(Calendar cal) {
-
         return cal.get(Calendar.MINUTE);
     }
 
     public static final int getSecond(Calendar cal) {
-
         return cal.get(Calendar.SECOND);
     }
 
@@ -149,7 +139,6 @@ public class ModiFileHandler {
     }
 
     private String getFilePath(String _root, String _measurementType) {
-
         _root = (_root.endsWith(File.separator)) ? _root : _root + File.separator;
         String _dirPath = _root + LOG_RX_DATA;
 
@@ -183,7 +172,6 @@ public class ModiFileHandler {
     }
 
     private String getExternalDir(String _measurementType) {
-
         String _root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
         ModiLog.d(TAG, "ext root:" + _root);
 
@@ -230,7 +218,6 @@ public class ModiFileHandler {
     }
 
     private String getFileName(String _dir, String _measurementType) {
-
         String _filehead = _measurementType + "_" + ModiFileHandler.getDate();
         String _filename = _filehead + LOGFILE_EXT;
 
@@ -243,40 +230,9 @@ public class ModiFileHandler {
         return _dir + File.separator + _filename;
     }
 
-
-    /*
-    public String writeLogFile(JSONObject _jsonObj, String _measurementType) {
-
-        String _dir = getDir(_measurementType);
-
-        if (_dir != null) {
-            String _logFileName = getFileName(_dir, _measurementType);
-            ModiLog.d(TAG, "_logFileName: "+ _logFileName);
-            ModiLog.d(TAG, "_jsonObj: "+ _jsonObj.toJSONString());
-
-            try {
-                _jsonObj.put(KEY_LOG_FILE_NAME, _logFileName);
-
-                FileWriter _fileWriter = new FileWriter(_logFileName, false);
-                _fileWriter.write(_jsonObj.toJSONString());
-                _fileWriter.flush();
-                _fileWriter.close();
-
-            } catch (Exception e) {
-                ModiLog.e(TAG, e.toString());
-            }
-
-            return _logFileName;
-        } else {
-            return null;
-        }
-    }
-    */
-
     private String writeLogFile(String str, String _dir, String _measurementType) {
         String _logFileName = getFileName(_dir, _measurementType);
         ModiLog.d(TAG, "_logFileName: " + _logFileName);
-        //  ModiLog.d(TAG, "_jsonObj: "+ str);
 
         try {
             if (ContextCompat.checkSelfPermission(this.context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -312,7 +268,6 @@ public class ModiFileHandler {
         String _dir = getExternalDir(_measurementType);
 
         if (_dir != null) {
-
             return writeLogFile(String.format(Locale.KOREAN, "[%s] %s", ModiFileHandler.getDate(), str), _dir, _measurementType);
         } else {
             return null;

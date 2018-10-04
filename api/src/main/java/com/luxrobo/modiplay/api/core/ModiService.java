@@ -1,10 +1,10 @@
 /*
- * Developement Part, Luxrobo INC., SEOUL, KOREA
- * Copyright(c) 2018 by Luxrobo Inc.
+ * Developement Part, LUXROBO INC., SEOUL, KOREA
+ * Copyright(c) 2018 by LUXROBO Inc.
  *
  * All rights reserved. No part of this work may be reproduced, stored in a
  * retrieval system, or transmitted by any means without prior written
- * Permission of Luxrobo Inc.
+ * Permission of LUXROBO Inc.
  */
 
 package com.luxrobo.modiplay.api.core;
@@ -44,16 +44,16 @@ public class ModiService extends Service {
 
     private final static String TAG = ModiService.class.getSimpleName();
 
-    public final static String ACTION_GATT_CONNECTED = "com.luxrobo.modisdk.ACTION_GATT_CONNECTED";
-    public final static String ACTION_GATT_DISCONNECTED = "com.luxrobo.modisdk.ACTION_GATT_DISCONNECTED";
-    public final static String ACTION_GATT_SERVICES_DISCOVERED = "com.luxrobo.modisdk.ACTION_GATT_SERVICES_DISCOVERED";
-    public final static String ACTION_DATA_AVAILABLE = "com.luxrobo.modisdk.ACTION_DATA_AVAILABLE";
-    public final static String ACTION_WRITE_CHACTERISTIC = "com.luxrobo.modisdk.WRITE_CHACTERISTIC";
-    public final static String ACTION_NOTIFICATION_STATE_CHANGED = "com.luxrobo.modisdk.NOTIFICATION_STATE_CHANGED";
-    public final static String EXTRA_DATA = "com.luxrobo.modisdk.EXTRA_DATA";
-    public final static String EXTRA_DATA_GROUP = "com.luxrobo.modisdk.EXTRA_DATA_GROUP";
-    public final static String ACTION_GATT_SERVICE_BIND = "com.luxrobo.modisdk.ACTION_GATT_SERVICE_BIND";
-    public final static String ACTION_GATT_SERVICE_UNBIND = "com.luxrobo.modisdk.ACTION_GATT_SERVICE_UNBIND";
+    public final static String ACTION_GATT_CONNECTED = "com.luxrobo.modiplay.api.ACTION_GATT_CONNECTED";
+    public final static String ACTION_GATT_DISCONNECTED = "com.luxrobo.modiplay.api.ACTION_GATT_DISCONNECTED";
+    public final static String ACTION_GATT_SERVICES_DISCOVERED = "com.luxrobo.modiplay.api.ACTION_GATT_SERVICES_DISCOVERED";
+    public final static String ACTION_DATA_AVAILABLE = "com.luxrobo.modiplay.api.ACTION_DATA_AVAILABLE";
+    public final static String ACTION_WRITE_CHACTERISTIC = "com.luxrobo.modiplay.api.WRITE_CHACTERISTIC";
+    public final static String ACTION_NOTIFICATION_STATE_CHANGED = "com.luxrobo.modiplay.api.NOTIFICATION_STATE_CHANGED";
+    public final static String EXTRA_DATA = "com.luxrobo.modiplay.api.EXTRA_DATA";
+    public final static String EXTRA_DATA_GROUP = "com.luxrobo.modiplay.api.EXTRA_DATA_GROUP";
+    public final static String ACTION_GATT_SERVICE_BIND = "com.luxrobo.modiplay.api.ACTION_GATT_SERVICE_BIND";
+    public final static String ACTION_GATT_SERVICE_UNBIND = "com.luxrobo.modiplay.api.ACTION_GATT_SERVICE_UNBIND";
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -82,7 +82,6 @@ public class ModiService extends Service {
     }              //ID 반환
 
     public ModiService() {
-
         requestQueue = RequestQueue.getInstance();
         initialServiceTimestamp = ModiDateUtil.getTimeTick();
     }
@@ -109,7 +108,6 @@ public class ModiService extends Service {
     }
 
     public boolean discoverService() {
-
         if (mBluetoothGatt != null) {
             return mBluetoothGatt.discoverServices();
         }
@@ -121,7 +119,6 @@ public class ModiService extends Service {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-
             //specific connection error, retry to connect
             if (status == 133) {
                 connect(gatt.getDevice().toString());
@@ -148,7 +145,6 @@ public class ModiService extends Service {
 
                     @Override
                     public void run() {
-
                         broadcastUpdate(action);
                         connectBroadCastHandler.removeCallbacksAndMessages(null);
                     }
@@ -177,12 +173,10 @@ public class ModiService extends Service {
                 // 연결이 이루어진 디바이스 주소 저장
                 //----------
                 if (!isDisconnectPermanently) {
-
                     ModiPreference preference = ModiPreference.getInstance();
                     preference.init(getApplicationContext());
                     preference.setDeviceAddress(mBluetoothDeviceAddress);
                 } else {
-
                     ModiPreference preference = ModiPreference.getInstance();
                     preference.init(getApplicationContext());
                     preference.setDeviceAddress("");
@@ -191,32 +185,25 @@ public class ModiService extends Service {
                 isDisconnectPermanently = false;
 
             } else if (BluetoothProfile.STATE_CONNECTING == newState) {
-
                 ModiLog.d(TAG, "Trying to Connecting...");
             } else if (BluetoothProfile.STATE_DISCONNECTING == newState) {
-
                 ModiLog.d(TAG, "Trying to Disconnecting...");
             }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-
             if (status == BluetoothGatt.GATT_SUCCESS) {
-
                 ModiLog.d(TAG, "onServicesDiscovered received: GATT_SUCCESS");
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
             } else {
-
                 ModiLog.d(TAG, "onServicesDiscovered received: " + status);
             }
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-
             if (status == BluetoothGatt.GATT_SUCCESS) {
-
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
 
@@ -228,7 +215,6 @@ public class ModiService extends Service {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
 
@@ -265,14 +251,12 @@ public class ModiService extends Service {
     };
 
     private void broadcastUpdate(final String action) {
-
         final Intent intent = new Intent(action);
         intent.putExtra(ModiConstants.KEY_ARRIVED_TIMESTAMP, ModiDateUtil.getTimeTick());
         sendBroadcast(intent);
     }
 
     private void broadcastUpdate(final String action, final String uuid) {
-
         final Intent intent = new Intent(action);
         intent.putExtra(ModiConstants.KEY_UUID, uuid);
         intent.putExtra(ModiConstants.KEY_ARRIVED_TIMESTAMP, ModiDateUtil.getTimeTick());
@@ -280,7 +264,6 @@ public class ModiService extends Service {
     }
 
     private void broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic) {
-
         final Intent intent = new Intent(action);
         String uuid16 = ModiGattAttributes.convert16UUID(characteristic.getUuid());
 
@@ -317,7 +300,6 @@ public class ModiService extends Service {
 
                         // [00] 타입 [00] 포멧 [00 00 00 00 00 00 00 00] payload
                         rawData = String.format("%s Raw Data: %s", ModiGattAttributes.lookup(uuid16, ""), stringBuilder.toString());
-                        // ModiLog.d(TAG, rawData);
 
                         intent.putExtra(ModiConstants.KEY_RAW_DATA, stringBuilder.toString());
                         intent.putExtra(ModiConstants.KEY_RAW_DATA_BYTE, characteristic.getValue());
@@ -326,30 +308,25 @@ public class ModiService extends Service {
                     }
                 }
             } else {
-
                 return;
             }
         }
     }
 
     public class LocalBinder extends Binder {
-
         ModiService getService() {
-
             return ModiService.this;
         }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-
         broadcastUpdate(ModiService.ACTION_GATT_SERVICE_BIND);
         return mBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-
         broadcastUpdate(ModiService.ACTION_GATT_SERVICE_UNBIND);
         close(null);
         return super.onUnbind(intent);
@@ -361,9 +338,7 @@ public class ModiService extends Service {
      * @return 블루투스매니저 초기화 성공 여부
      */
     public boolean initialize() {
-
         if (mBluetoothManager == null) {
-
             mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 
             if (mBluetoothManager == null) {
@@ -375,7 +350,6 @@ public class ModiService extends Service {
         mBluetoothAdapter = mBluetoothManager.getAdapter();
 
         if (mBluetoothAdapter == null) {
-
             return false;
         }
 
@@ -398,15 +372,14 @@ public class ModiService extends Service {
         ModiLog.d(TAG, "Try to connect " + address);
 
         if (mBluetoothAdapter == null || address == null) {
-
             ModiLog.d(TAG, "BluetoothAdapter not initialized or unspecified address.");
             initialize();
             return false;
         }
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        if (device == null) {
 
+        if (device == null) {
             ModiLog.d(TAG, "Device not found.  Unable to connect.");
             return false;
         }
@@ -443,12 +416,10 @@ public class ModiService extends Service {
         ModiLog.d(TAG, "Received disconnecting");
 
         if (mBluetoothAdapter == null) {
-
             ModiLog.d(TAG, "BluetoothAdapter is not initialized");
             initialize();
             return;
         } else if (mBluetoothGatt == null) {
-
             ModiLog.d(TAG + " " + initialServiceTimestamp, "mBluetoothGatt is null");
             return;
         }
@@ -458,13 +429,10 @@ public class ModiService extends Service {
 
             @Override
             public void run() {
-
                 if (mBluetoothGatt != null) {
-
                     mBluetoothGatt.disconnect();
                     ModiLog.d(TAG, "Try to Disconnecting...");
                 } else {
-
                     ModiLog.d(TAG, "No Object for Disconnecting...");
                 }
 
@@ -478,12 +446,9 @@ public class ModiService extends Service {
      * mBluetoothGatt 상태 반환
      */
     public boolean isBluetoothGattConnected() {
-
         if (mBluetoothGatt == null) {
-
             return false;
         } else {
-
             return true;
         }
     }
@@ -504,13 +469,10 @@ public class ModiService extends Service {
 
             @Override
             public void run() {
-
                 boolean result = refreshGatt();
                 if (result) {
-
                     ModiLog.d(TAG, "GATT Local Refresh Success");
                 } else {
-
                     ModiLog.d(TAG, "GATT Local Refresh Failed");
                 }
 
@@ -520,21 +482,16 @@ public class ModiService extends Service {
 
                     @Override
                     public void run() {
-
                         try {
-
                             if (mBluetoothGatt != null) {
-
                                 mBluetoothGatt.close();
                                 ModiLog.d(TAG + " " + initialServiceTimestamp, "Bluetooth GATT Closing");
                             } else {
-
                                 ModiLog.d(TAG, "mBluetoothGatt is null, Close is not operated");
                             }
 
                             deinitGatt(gattCloseListener);
                         } catch (Exception e) {
-
                             ModiLog.e(TAG, "Close Gatt Error " + e.toString());
                         }
 
@@ -561,7 +518,6 @@ public class ModiService extends Service {
                 ModiLog.d(TAG + " " + initialServiceTimestamp, "Bluetooth GATT Deinitialized");
 
                 if (gattCloseListener != null) {
-
                     gattCloseListener.onClosedBluetoothGatt();
                 }
 
@@ -579,24 +535,19 @@ public class ModiService extends Service {
     public boolean refreshGatt() {
 
         try {
-
             BluetoothGatt bluetoothGatt = mBluetoothGatt;
             Method localMethod = bluetoothGatt.getClass().getMethod("refresh", new Class[0]);
 
             if (localMethod != null) {
-
                 boolean result = ((Boolean) localMethod.invoke(bluetoothGatt, new Object[0])).booleanValue();
                 return result;
             } else {
-
                 ModiLog.d(TAG, "Gatt refresh is not found");
                 return false;
             }
 
         } catch (Exception e) {
-
             ModiLog.e(TAG, "refreshGatt Error " + e.toString());
-
             return false;
         }
     }
@@ -623,7 +574,6 @@ public class ModiService extends Service {
         boolean result = false;
 
         try {
-
             if (mBluetoothAdapter == null) {
                 initialize();
             }
@@ -631,11 +581,8 @@ public class ModiService extends Service {
             Set<BluetoothDevice> bondedDeviceList = mBluetoothAdapter.getBondedDevices();
 
             if (bondedDeviceList.size() > 0) {
-
                 for (BluetoothDevice device : bondedDeviceList) {
-
                     if (device.getAddress().equalsIgnoreCase(deviceAddress)) {
-
                         ModiLog.d(TAG, "Found Bonding with " + deviceAddress + " for removing Bond");
                         result = removeBond(device);
                         break;
@@ -644,7 +591,6 @@ public class ModiService extends Service {
             }
 
         } catch (Exception e) {
-
             ModiLog.e(TAG, "removeBond Error " + e.toString());
         }
 
@@ -730,9 +676,7 @@ public class ModiService extends Service {
         boolean result = false;
 
         try {
-
             if (mBluetoothAdapter == null) {
-
                 initialize();
             }
 
@@ -768,7 +712,6 @@ public class ModiService extends Service {
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
 
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-
             ModiLog.d(TAG, "BluetoothAdapter not initialized");
             return;
         }
@@ -777,22 +720,18 @@ public class ModiService extends Service {
         String rawData;
 
         try {
-
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
-
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
                 for (byte byteChar : data)
                     stringBuilder.append(Byte.toString(byteChar) + " ");
 
                 rawData = "writeCharacteristic " + ModiGattAttributes.lookup(uuid16, "") + "\nRaw Data: " + stringBuilder.toString();
             } else {
-
                 rawData = "writeCharacteristic " + ModiGattAttributes.lookup(uuid16, "") + "\nRaw Data: No Data";
             }
 
         } catch (Exception e) {
-
             ModiLog.e(TAG, "writeCharacteristic Raw Data Parsing Error from " + ModiGattAttributes.lookup(uuid16, ""));
             rawData = "writeCharacteristic " + ModiGattAttributes.lookup(uuid16, "") + "\nRaw Data: No Data";
         }
@@ -814,13 +753,11 @@ public class ModiService extends Service {
         }
 
         try {
-
             mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
             mBluetoothGatt.readCharacteristic(characteristic);
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString(ModiGattAttributes.conver128UUID(ModiGattAttributes.DEVICE_TX_DESC)));
 
             if (descriptor != null) {
-
                 descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                 mBluetoothGatt.writeDescriptor(descriptor);
             }

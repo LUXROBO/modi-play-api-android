@@ -24,7 +24,6 @@ public class DeviceInformation {
     public State state = State.DISCONNECTED;
 
     private DeviceInformation() {
-
         deviceName = null;
         deviceAddress = "";
         serialNumber = null;
@@ -43,7 +42,6 @@ public class DeviceInformation {
     }
 
     public void deinit() {
-
         deviceName = null;
         deviceAddress = "";
         serialNumber = null;

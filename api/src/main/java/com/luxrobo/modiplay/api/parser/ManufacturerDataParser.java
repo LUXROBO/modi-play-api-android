@@ -28,7 +28,6 @@ public class ManufacturerDataParser {
             strManufacturerData = ModiStringUtil.convertByteToHexString(scanRecord, ":");
 
             if (strManufacturerData.contains(manufacturerCode)) {
-
                 // Mac Address가 있는 경우
                 int index = strManufacturerData.indexOf(manufacturerCode) + manufacturerCode.length();
 
@@ -47,7 +46,6 @@ public class ManufacturerDataParser {
 
         } catch (Exception e) {
 
-            // ModiLog.d(TAG, "ManufacturerDataParser Error "+ e.toString());
         }
 
         return macAddress;

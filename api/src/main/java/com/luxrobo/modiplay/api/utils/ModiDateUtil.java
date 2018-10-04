@@ -13,7 +13,6 @@ import java.util.Date;
 
 
 public class ModiDateUtil {
-
     public static long getTimeTick() {
         return (new Date()).getTime();
     }

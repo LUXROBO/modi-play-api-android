@@ -19,14 +19,12 @@ public abstract class ManagerStateListener implements ServiceStateClient {
 
     @Override
     public void onBind() {
-
         ModiLog.d(TAG, "Service Bind");
         onCompletedToInitialize();
     }
 
     @Override
     public void onUnBind() {
-
         ModiLog.d(TAG, "Service Unbind");
         onCompletedToDeinitialize();
     }
