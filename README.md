@@ -43,21 +43,8 @@ private ModiManager mModiManager = ModiManager.getInstance();
 Initialize ModiManager ::
 
 ```java
-mModiManager.init(getApplicationContext(),
-        new ManagerStateListener() {
-                @Override
-                public void onCompletedToInitialize() {
-                }
+mModiManager.init(getApplicationContext(), mModiClient);
 
-                @Override
-                public void onCompletedToDeinitialize() {
-                }
-        });
-```
-
-Set ModiClient::
-
-```java
 private ModiClient mModiClient = new ModiClient() {
 
         @Override
@@ -115,7 +102,6 @@ private ModiClient mModiClient = new ModiClient() {
                 
         }
 };
-mModiManager.setClient(mModiClient);
 ```
 
 Scan and Connect::
