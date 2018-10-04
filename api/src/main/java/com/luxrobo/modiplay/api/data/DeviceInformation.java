@@ -14,13 +14,37 @@ import com.luxrobo.modiplay.api.enums.State;
 
 public class DeviceInformation {
 
+    /**
+     * device name
+     */
     public String deviceName;
+    /**
+     * device address
+     */
     public String deviceAddress = "";
+    /**
+     * serial number
+     */
     public String serialNumber;
+    /**
+     * hardware revision
+     */
     public String hardwareRevision;
+    /**
+     * firmware revision
+     */
     public String firmwareRevision;
+    /**
+     * software revision
+     */
     public String softwareRevision;
+    /**
+     * battery level
+     */
     public int batteryLevel;
+    /**
+     * device state
+     */
     public State state = State.DISCONNECTED;
 
     private DeviceInformation() {
@@ -37,10 +61,17 @@ public class DeviceInformation {
         private static final DeviceInformation instance = new DeviceInformation();
     }
 
+    /**
+     * get DeviceInformation Instance
+     * @return DeviceInformation Instance
+     */
     public static DeviceInformation getInstance() {
         return Singleton.instance;
     }
 
+    /**
+     * deinitialize DeviceInformation
+     */
     public void deinit() {
         deviceName = null;
         deviceAddress = "";

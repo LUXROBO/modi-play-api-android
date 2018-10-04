@@ -14,5 +14,10 @@ import com.luxrobo.modiplay.api.enums.Characteristics;
 
 public interface NotifyStateClient {
 
+    /**
+     * Callback when changed NotificationState
+     * @param characteristics Characteristics
+     * @param enable
+     */
     void onChangedNotificationState(Characteristics characteristics, boolean enable);
 }

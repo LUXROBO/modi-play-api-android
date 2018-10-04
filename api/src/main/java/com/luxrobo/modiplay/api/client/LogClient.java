@@ -12,5 +12,9 @@ package com.luxrobo.modiplay.api.client;
 
 public interface LogClient {
 
+    /**
+     * Callback when received raw data from MODI Network Module
+     * @param data raw data
+     */
     void onReceivedRawData(String data);
 }

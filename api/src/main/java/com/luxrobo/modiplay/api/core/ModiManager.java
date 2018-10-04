@@ -93,19 +93,6 @@ public class ModiManager {
      */
     public static final int STATE_BUZZER_OFF = 0;
 
-    /**
-     * device service characteristic  uuid
-     */
-    public static final String DEVICE_CHAR_SERVICE = "00FF";
-    /**
-     * device tx/rx characteristic  uuid
-     */
-    public static final String DEVICE_CHAR_TX_RX = "8421";
-    /**
-     * device tx descriptors  uuid
-     */
-    public static final String DEVICE_TX_DESC = "2902";
-
     private Context context;
     private boolean isScanning = false;                          // 검색 여부
     private boolean isConnected = false;                         // 연결 여부

@@ -23,7 +23,6 @@ public class ModiGattAttributes {
     public static final String DEVICE_TX_DESC = "2902";
 
     static {
-
         attributes.put(DEVICE_CHAR_SERVICE, "MODI SERVICE");
         attributes.put(DEVICE_CHAR_TX_RX, "DATA RX/TX");
         attributes.put(DEVICE_TX_DESC, "TX DESC");

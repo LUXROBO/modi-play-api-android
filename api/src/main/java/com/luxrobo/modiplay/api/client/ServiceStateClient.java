@@ -12,7 +12,13 @@ package com.luxrobo.modiplay.api.client;
 
 public interface ServiceStateClient {
 
+    /**
+     * Callback when Service bind
+     */
     void onBind();
 
+    /**
+     * Callback when Service unbind
+     */
     void onUnBind();
 }

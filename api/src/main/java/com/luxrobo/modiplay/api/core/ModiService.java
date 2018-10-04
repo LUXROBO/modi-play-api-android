@@ -111,7 +111,6 @@ public class ModiService extends Service {
         if (mBluetoothGatt != null) {
             return mBluetoothGatt.discoverServices();
         }
-
         return false;
     }
 
@@ -209,7 +208,8 @@ public class ModiService extends Service {
 
             MODI_ID = characteristic.getValue();
 
-            ModiLog.d(TAG, String.format("onCharacteristicRead %s status %d", ModiGattAttributes.lookup(ModiGattAttributes.convert16UUID(characteristic.getUuid()), ""), status));
+            ModiLog.d(TAG, String.format("onCharacteristicRead %s status %d",
+                    ModiGattAttributes.lookup(ModiGattAttributes.convert16UUID(characteristic.getUuid()), ""), status));
             requestQueue.doneLastRequest(characteristic, status);
         }
 
@@ -333,9 +333,8 @@ public class ModiService extends Service {
     }
 
     /**
-     * 블루투스매니저 초기화
-     *
-     * @return 블루투스매니저 초기화 성공 여부
+     * Initialize BluetoothManager
+     * @return result
      */
     public boolean initialize() {
         if (mBluetoothManager == null) {
@@ -356,17 +355,17 @@ public class ModiService extends Service {
         return true;
     }
 
+
+    private Handler connectGattHandler;
+
     /**
      * Connects to the GATT server hosted on the Bluetooth LE device.
-     *
      * @param address The device address of the destination device.
      * @return Return true if the connection is initiated successfully. The connection result
      * is reported asynchronously through the
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      * callback.
      */
-    private Handler connectGattHandler;
-
     public boolean connect(final String address) {
 
         ModiLog.d(TAG, "Try to connect " + address);
@@ -403,14 +402,14 @@ public class ModiService extends Service {
     }
 
 
+    private Handler disconnectHandler;
+
     /**
      * Disconnects an existing connection or cancel a pending connection. The disconnection result
      * is reported asynchronously through the
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      * callback.
      */
-    private Handler disconnectHandler;
-
     public void disconnect() {
 
         ModiLog.d(TAG, "Received disconnecting");
@@ -443,7 +442,7 @@ public class ModiService extends Service {
 
 
     /**
-     * mBluetoothGatt 상태 반환
+     * Return mBluetoothGatt state
      */
     public boolean isBluetoothGattConnected() {
         if (mBluetoothGatt == null) {
@@ -454,8 +453,8 @@ public class ModiService extends Service {
     }
 
     /**
-     * After using a given BLE device, the app must call this method to ensure resources are
-     * released properly.
+     * After using a given BLE device, the app must call this method to ensure resources are released properly.
+     * @param gattCloseListener GattCloseListener
      */
     public void close(final GattCloseListener gattCloseListener) {
 
@@ -529,8 +528,7 @@ public class ModiService extends Service {
 
     /**
      * BluetoothGatt Refresh Device
-     *
-     * @return
+     * @return result
      */
     public boolean refreshGatt() {
 
@@ -553,10 +551,9 @@ public class ModiService extends Service {
     }
 
     /**
-     * 본딩 제거
-     *
+     * Remove bond
      * @param device
-     * @return
+     * @return result
      * @throws Exception
      */
     private boolean removeBond(BluetoothDevice device) throws Exception {
@@ -569,6 +566,11 @@ public class ModiService extends Service {
         return result;
     }
 
+    /**
+     * Remove bond
+     * @param deviceAddress
+     * @return result
+     */
     public boolean removeBond(String deviceAddress) {
 
         boolean result = false;
@@ -599,7 +601,7 @@ public class ModiService extends Service {
 
 
     /**
-     * reflection
+     * Reflection
      * get system device connection state
      */
     private boolean isDeviceConnected(BluetoothDevice device) throws Exception {
@@ -611,6 +613,12 @@ public class ModiService extends Service {
         return result;
     }
 
+    /**
+     * Return device connected state
+     * @param deviceAddress
+     * @return device connected state
+     * @throws Exception
+     */
     public boolean isDeviceConnected(String deviceAddress) throws Exception {
 
         boolean result = false;
@@ -628,10 +636,10 @@ public class ModiService extends Service {
 
 
     /**
-     * reflection System API
+     * Reflection System API
      * get BLE enable state
      *
-     * @return
+     * @return  BLE enable state
      */
     private boolean isLeEnabled() {
 
@@ -693,7 +701,6 @@ public class ModiService extends Service {
      * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
      * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
      * callback.
-     *
      * @param characteristic The characteristic to read from.
      */
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
@@ -709,6 +716,12 @@ public class ModiService extends Service {
 
     }
 
+    /**
+     * Request a write on a given {@code BluetoothGattCharacteristic}. The write result is reported
+     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicWrite(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
+     * callback.
+     * @param characteristic The characteristic to write  from.
+     */
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
 
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
@@ -768,10 +781,9 @@ public class ModiService extends Service {
     }
 
     /**
-     * 블루투스 GATT 서비스
-     *
-     * @param uuid 서비스 UUID
-     * @return 블루투스 GATT 서비스 리턴
+     * Bluetooth GATT Service
+     * @param uuid Service UUID
+     * @return Bluetooth GATT Service
      */
     public BluetoothGattService getService(UUID uuid) {
 
@@ -785,8 +797,7 @@ public class ModiService extends Service {
 
 
     /**
-     * BLE 속성 기술
-     *
+     * Write BLE Descriptor
      * @param descriptor
      */
     public void writeDescriptor(BluetoothGattDescriptor descriptor) {
@@ -802,7 +813,6 @@ public class ModiService extends Service {
     /**
      * Retrieves a list of supported GATT services on the connected device. This should be
      * invoked only after {@code BluetoothGatt#discoverServices()} completes successfully.
-     *
      * @return A {@code List} of supported services.
      */
     public List<BluetoothGattService> getSupportedGattServices() {
@@ -812,14 +822,23 @@ public class ModiService extends Service {
         return mBluetoothGatt.getServices();
     }
 
+    /**
+     * Add Characteristic Request on queue
+     * @param method RequestQueue READ/WRITE/NOTIFY
+     * @param characteristic BluetoothGattCharacteristic
+     */
     public void addRequest(String method, BluetoothGattCharacteristic characteristic) {
-
         requestQueue.putRequest(method, characteristic);
     }
 
-    public void addRequest(String method, BluetoothGattCharacteristic characteristic, boolean nofity) {
-
-        requestQueue.putRequest(method, characteristic, nofity);
+    /**
+     * Add Characteristic Request on queue
+     * @param method RequestQueue READ/WRITE/NOTIFY
+     * @param characteristic BluetoothGattCharacteristic
+     * @param notify is nofity
+     */
+    public void addRequest(String method, BluetoothGattCharacteristic characteristic, boolean notify) {
+        requestQueue.putRequest(method, characteristic, notify);
     }
 
     private void getRequest() {
@@ -827,131 +846,104 @@ public class ModiService extends Service {
         RequestJob requestJob = requestQueue.getRequest();
 
         try {
-
             if (requestJob != null) {
-                /*if(RequestQueue.REQUEST_READ.equals(requestJob.method)) {
-
-                    readCharacteristic(requestJob.characteristic);
-                } else */
                 if (RequestQueue.REQUEST_WRITE.equals(requestJob.method)) {
-
                     writeCharacteristic(requestJob.characteristic);
                 } else {
-
                     setCharacteristicNotification(requestJob.characteristic, requestJob.notify);
                 }
             }
         } catch (Exception e) {
-
             ModiLog.e(TAG, "getRequest Error " + e.toString());
         }
     }
 
     /**
-     * 요청 QUEUE 삭제
+     * Clear requestQueue
      */
     private void clearRequetQueue() {
-
         requestQueue.clear();
     }
 
     /**
-     * 요청 QUEUE에 명령이 남아있는지 여부
-     *
-     * @return 요청 QUEUE에 명령이 남아있는지 여부 리턴
+     * Check Whether command remains in request Queue
+     * @return result
      */
     private boolean hasRequestJob() {
-
         return requestQueue.hasJob();
     }
 
     /**
-     * 요청 QUEUE에 남아있는 명령 개수
-     *
-     * @return 요청 QUEUE에 남아있는 명령 개수 리턴
+     * Get requestQueue size
+     * @return requestQueue size
      */
     public int getRequestQueueSize() {
         return requestQueue.size();
     }
 
+    /**
+     * Start Queue Pulling
+     */
     public void startQueuePulling() {
-
         try {
-
             if (hasRequestJob()) {
-
                 if (requestQueue.getLastRequestJob() == null) {
-
                     retrialCount = 0;
                     getRequest();
                 } else {
-
                     retrialCount++;
                     if (retrialCount > 5) {
-
                         String uuid16 = ModiGattAttributes.convert16UUID(requestQueue.getLastRequestJob().characteristic.getUuid());
                         requestQueue.doneLastRequest(requestQueue.getLastRequestJob().characteristic, 99);
                         ModiLog.e(TAG, "Request Failed " + ModiGattAttributes.lookup(uuid16, uuid16) + " jobs");
                         retrialCount = 0;
                     }
                 }
-
                 ModiLog.d(TAG, "Request Queue has " + requestQueue.size() + " jobs");
             }
         } catch (Exception e) {
-
             ModiLog.e(TAG, "startQueuePulling Error " + e.toString());
         }
     }
 
     /**
-     * 요청 QUEUE 삭제
+     * Clear requestQueue
      */
     public void clearQueue() {
-
         try {
-
             if (hasRequestJob()) {
-
                 requestQueue.clear();
             }
         } catch (Exception e) {
-
             ModiLog.e(TAG, "clearQueue Error " + e.toString());
         }
     }
 
     /**
-     * 요청된 명령이 있는지 여부(대기중인 명령이 있는지 여부)
-     *
-     * @return 요청된 명령이 있는지 여부 리턴
+     * Check if there are pending commands
+     * @return result
      */
     public boolean onQueueProcess() {
-
         return requestQueue.onProcess();
     }
 
     /**
-     * 연결된 디바이스 이름
-     *
-     * @return 연결된 디바이스 이름 리턴
+     * Get Connected Device Name
+     * @return device name
      */
     public String getConnectedDeviceName() {
 
         try {
-
             if (mBluetoothGatt != null) {
-
-                if (mBluetoothAdapter == null) initialize();
+                if (mBluetoothAdapter == null) {
+                    initialize();
+                }
                 BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(DeviceInformation.getInstance().deviceAddress);
                 return device.getName();
             }
-
         } catch (Exception e) {
-
             ModiLog.e(TAG, "getConnectedDeviceName Error " + e.toString());
         }
-
         return null;
     }
 }

@@ -12,15 +12,33 @@ package com.luxrobo.modiplay.api.client;
 
 public interface BluetoothClient {
 
+    /**
+     * Callback when Bluetooth enabled
+     */
     void onBluetoothEnabled();
 
+    /**
+     * Callback when Bluetooth disabled
+     */
     void onBluetoothDisabled();
 
+    /**
+     * Callback when Bluetooth connected
+     */
     void onBluetoothStateOnConnected();
 
+    /**
+     * Callback when Bluetooth disconnected
+     */
     void onBluetoothStateOnDisconnected();
 
+    /**
+     * Callback when Bluetooth error
+     */
     void onBluetoothError();
 
+    /**
+     * Callback when Bluetooth state unknown
+     */
     void onBluetoothStateUnknown(int state);
 }
