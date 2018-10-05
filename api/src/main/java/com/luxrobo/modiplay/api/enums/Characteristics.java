@@ -1,10 +1,10 @@
 /*
- * Developement Part, Luxrobo INC., SEOUL, KOREA
- * Copyright(c) 2018 by Luxrobo Inc.
+ * Developement Part, LUXROBO INC., SEOUL, KOREA
+ * Copyright(c) 2018 by LUXROBO Inc.
  *
  * All rights reserved. No part of this work may be reproduced, stored in a
  * retrieval system, or transmitted by any means without prior written
- * Permission of Luxrobo Inc.
+ * Permission of LUXROBO Inc.
  */
 
 package com.luxrobo.modiplay.api.enums;
@@ -25,14 +25,11 @@ public enum Characteristics {
     }
 
     public String code() {
-
         return this.code;
     }
 
     public static Characteristics get(String appCode) {
-
         for (Characteristics value : Characteristics.values()) {
-
             if (appCode.equalsIgnoreCase(value.code())) return value;
         }
         return null;

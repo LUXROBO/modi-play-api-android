@@ -1,10 +1,10 @@
 /*
- * Developement Part, Luxrobo INC., SEOUL, KOREA
- * Copyright(c) 2018 by Luxrobo Inc.
+ * Developement Part, LUXROBO INC., SEOUL, KOREA
+ * Copyright(c) 2018 by LUXROBO Inc.
  *
  * All rights reserved. No part of this work may be reproduced, stored in a
  * retrieval system, or transmitted by any means without prior written
- * Permission of Luxrobo Inc.
+ * Permission of LUXROBO Inc.
  */
 
 package com.luxrobo.modiplay.api.core;
@@ -39,6 +39,7 @@ import com.luxrobo.modiplay.api.client.NotifyStateClient;
 import com.luxrobo.modiplay.api.client.ServiceStateClient;
 import com.luxrobo.modiplay.api.data.DeviceInformation;
 import com.luxrobo.modiplay.api.enums.Characteristics;
+import com.luxrobo.modiplay.api.enums.State;
 import com.luxrobo.modiplay.api.listener.GattCloseListener;
 import com.luxrobo.modiplay.api.listener.ManagerStateListener;
 import com.luxrobo.modiplay.api.parser.ManufacturerDataParser;
@@ -54,27 +55,11 @@ import java.util.Locale;
 
 public class ModiManager {
 
-    public static final boolean STATE_BUTTON_PRESSED = true;
-    public static final boolean STATE_BUTTON_UNPRESSED = false;
-
-    public static final int STATE_JOYSTICK_UNPRESSED = 0;
-    public static final int STATE_JOYSTICK_UP = 2;
-    public static final int STATE_JOYSTICK_DOWN = 3;
-    public static final int STATE_JOYSTICK_LEFT = 4;
-    public static final int STATE_JOYSTICK_RIGHT = 5;
-
-    public static final int STATE_BUZZER_ON = 1;
-    public static final int STATE_BUZZER_OFF = 0;
-
-    public static final String DEVICE_CHAR_SERVICE = "00FF";
-    public static final String DEVICE_CHAR_TX_RX = "8421";
-    public static final String DEVICE_TX_DESC = "2902";
-
-    private Context context;                                    //
-    public boolean isScanning = false;                          // 검색 여부
-    public boolean isConnected = false;                         // 연결 여부
-    public boolean isDiscoveredCharacteristics = false;         // 속성확인 여부
-    public boolean isDisconnectPermanently = false;             // 자동해제 여부
+    private Context context;
+    private boolean isScanning = false;                          // 검색 여부
+    private boolean isConnected = false;                         // 연결 여부
+    private boolean isDiscoveredCharacteristics = false;         // 속성확인 여부
+    private boolean isDisconnectPermanently = false;             // 자동해제 여부
 
     private BluetoothAdapter bluetoothAdapter;                  //
     private BluetoothLeScanner bluetoothLeScanner;              //
@@ -97,11 +82,11 @@ public class ModiManager {
 
     private final ServiceConnection serviceConnection = new ModuleServiceConnection();
 
-    public DeviceInformation deviceInformation;
+    private DeviceInformation deviceInformation;
 
-    public HandlerThread MODIBackgroundThread;                         //SDK Background Handler
+    private HandlerThread MODIBackgroundThread;                         //SDK Background Handler
 
-    public int ScanningTimes = 0;                                // 스캐닝 중 스캔시도 횟수, 5번이 최대
+    private int ScanningTimes = 0;                                // 스캐닝 중 스캔시도 횟수, 5번이 최대
 
     private ModiManager() {
         MODIBackgroundThread = new HandlerThread("MODI Background Handler");
@@ -110,17 +95,19 @@ public class ModiManager {
     }
 
     private static class ManagerSingleton {
-
         private static final ModiManager instance = new ModiManager();
     }
 
+    /**
+     * get ModiManager Instance
+     *
+     * @return ModiManager Instance
+     */
     public static ModiManager getInstance() {
-
         return ManagerSingleton.instance;
     }
 
     private void setIsDisconnectPermanently(boolean disconnectPermanently) {
-
         isDisconnectPermanently = disconnectPermanently;
     }
 
@@ -128,56 +115,47 @@ public class ModiManager {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-
             try {
-
                 ModiService.LocalBinder binder = (ModiService.LocalBinder) service;
                 mModiService = binder.getService();
 
                 if (!mModiService.initialize()) {
-
                     ModiLog.e("Unable to initialize service");
                 } else {
-
                     ModiLog.d("Service initialized");
                 }
             } catch (Exception e) {
-
                 ModiLog.e("Service Connection Error, service may not be initialized.");
             }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-
             ModiLog.d("Service is disconnected");
             mModiService = null;
         }
     }
 
     /**
-     * BluetoothAdapter 활성화
+     * turn on bluetooth
+     *
+     * @return result
      */
     public boolean turnOnBluetooth() {
-
-        if (this.bluetoothAdapter == null) setBluetoothAdapter();
+        if (this.bluetoothAdapter == null) {
+            setBluetoothAdapter();
+        }
 
         try {
-
             if (this.bluetoothAdapter != null) {
-
                 if (!this.bluetoothAdapter.isEnabled()) {
-
                     this.bluetoothAdapter.enable();
                 }
-
                 return true;
             } else {
-
                 return false;
             }
         } catch (Exception e) {
-
             ModiLog.e("turnOnBluetooth Error " + e.toString());
         }
 
@@ -186,59 +164,52 @@ public class ModiManager {
 
     private Handler rebootBluetoothHandler;
 
+    /**
+     * reboot bluetooth adapter
+     *
+     * @return result
+     */
     public boolean rebootBluetoothAdapter() {
-
         if (this.bluetoothAdapter == null) {
-
             setBluetoothAdapter();
         }
 
         if (this.bluetoothAdapter != null) {
-
             if (this.bluetoothAdapter.isEnabled()) {
-
                 try {
                     this.bluetoothAdapter.disable();
                     ModiLog.d("Bluetooth Turning off");
 
                     try {
-
-                        if (rebootBluetoothHandler == null)
+                        if (rebootBluetoothHandler == null) {
                             rebootBluetoothHandler = new Handler(context.getMainLooper());
+                        }
                     } catch (Exception e) {
-
                         ModiLog.e("rebootBluetoothAdapter Error " + e.toString());
                     } finally {
-
-                        if (rebootBluetoothHandler == null) rebootBluetoothHandler = new Handler();
+                        if (rebootBluetoothHandler == null) {
+                            rebootBluetoothHandler = new Handler();
+                        }
                     }
 
                     rebootBluetoothHandler.postDelayed(new Runnable() {
 
                         @Override
                         public void run() {
-
                             try {
-
                                 bluetoothAdapter.enable();
                                 ModiLog.d("Bluetooth Turning on");
-
                             } catch (Exception e) {
-
                                 ModiLog.e("Bluetooth turn On Error " + e.toString());
                             }
                         }
                     }, 3000);
-
                 } catch (Exception e) {
-
                     ModiLog.d("Bluetooth turn Off Error " + e.toString());
                 }
             }
-
             return true;
         } else {
-
             return false;
         }
     }
@@ -247,11 +218,8 @@ public class ModiManager {
      * 블루투스 켜기(강제로 블루투스 사용 시)
      */
     private void setBluetoothAdapter() {
-
         try {
-
             if (this.context != null) {
-
                 final BluetoothManager bluetoothManager = (BluetoothManager) this.context.getSystemService(Context.BLUETOOTH_SERVICE);
                 this.bluetoothAdapter = bluetoothManager.getAdapter();
 
@@ -260,7 +228,6 @@ public class ModiManager {
                 }
             }
         } catch (Exception e) {
-
             ModiLog.e("setBluetoothAdapter Error: " + e.toString());
         }
     }
@@ -282,13 +249,11 @@ public class ModiManager {
                 ModiLog.d(String.format("BluetoothAdapter State Changed to %d", state));
 
                 switch (state) {
-
                     case BluetoothAdapter.STATE_OFF:
                         ModiLog.d("Bluetooth is OFF");
                         mModiClient.onOffEvent();
                         ScanningTimes = 0;
                         if (mBluetoothClient != null) {
-
                             mBluetoothClient.onBluetoothDisabled();
                         }
                         break;
@@ -297,7 +262,6 @@ public class ModiManager {
                         ModiLog.d("Bluetooth is TURNING OFF");
 
                         if (mBluetoothClient != null) {
-
                             // mBluetoothClient.onBluetoothDisabled();
                         }
                         break;
@@ -308,37 +272,28 @@ public class ModiManager {
                         disconnectedCount = 0;
 
                         try {
-
                             new Handler(MODIBackgroundThread.getLooper()).postDelayed(new Runnable() {
 
                                 @Override
                                 public void run() {
-
                                     if (!isConnected()) {
-
                                         if (!isDisconnectPermanently) {
-
                                             ModiLog.d("Bluetooth on, connecting start");
                                             scanForConnect();
                                         }
 
                                         if (mBluetoothClient != null) {
-
                                             mBluetoothClient.onBluetoothStateOnDisconnected();
                                         }
                                     } else {
-
                                         if (mBluetoothClient != null) {
-
                                             mBluetoothClient.onBluetoothStateOnConnected();
                                         }
                                     }
                                 }
-
                             }, 1000);
 
                         } catch (Exception e) {
-
                             ModiLog.e("try to reconnect Error");
                         }
 
@@ -348,21 +303,18 @@ public class ModiManager {
                         ModiLog.d("Bluetooth is TURNING ON");
 
                         if (mBluetoothClient != null) {
-
                             // mBluetoothClient.onBluetoothEnabled();
                         }
                         break;
 
                     case BluetoothAdapter.ERROR:
                         if (mBluetoothClient != null) {
-
                             mBluetoothClient.onBluetoothError();
                         }
                         break;
 
                     default:
                         if (mBluetoothClient != null) {
-
                             mBluetoothClient.onBluetoothStateUnknown(state);
                         }
                         break;
@@ -372,17 +324,19 @@ public class ModiManager {
     };
 
     /**
-     * Client 초기화
+     * set ModiClient
      *
-     * @param client
+     * @param client ModiClient
      */
     public void setClient(ModiClient client) {
-        if (mModiClient != null) mModiClient = null;
+        if (mModiClient != null) {
+            mModiClient = null;
+        }
         mModiClient = client;
     }
 
     /**
-     * getApplicationContext 설정
+     * set Context(getApplicationContext)
      *
      * @param context
      */
@@ -391,13 +345,12 @@ public class ModiManager {
     }
 
     /**
-     * 클래스 변수 초기화
+     * initialize class object
      *
-     * @param context
-     * @param client
-     * @return 블루투스 지원 여부
+     * @param context Context
+     * @param client  ModiClient
+     * @return Bluetooth enabled
      */
-
     public boolean init(Context context, ModiClient client) {
         init(context, null, client);
 
@@ -405,24 +358,23 @@ public class ModiManager {
     }
 
     /**
-     * 클래스 변수 초기화
+     * initialize class object
      *
-     * @param context
-     * @param stateListener
-     * @return 블루투스 지원 여부
+     * @param context       Context
+     * @param stateListener ManagerStateListener
+     * @return Bluetooth enabled
      */
     public boolean init(Context context, ManagerStateListener stateListener) {
-
         return init(context, stateListener, null);
     }
 
     /**
-     * 클래스 변수 초기화
+     * initialize class object
      *
-     * @param context
-     * @param stateListener
-     * @param client
-     * @return 블루투스 지원 여부
+     * @param context       Context
+     * @param stateListener ManagerStateListener
+     * @param client        ModiClient
+     * @return Bluetooth enabled
      */
     public boolean init(Context context, @Nullable ManagerStateListener stateListener, @Nullable ModiClient client) {
 
@@ -432,15 +384,17 @@ public class ModiManager {
         isConnected = false;
         disconnectedCount = 0;
 
-        if (stateListener != null) setServiceStateClient(stateListener);
-        if (client != null) setClient(client);
+        if (stateListener != null) {
+            setServiceStateClient(stateListener);
+        }
+        if (client != null) {
+            setClient(client);
+        }
 
         if (mModiService == null) {
-
             boolean bindResult = bindService();
 
             if (!bindResult) {
-
                 return false;
             }
         }
@@ -452,7 +406,6 @@ public class ModiManager {
     }
 
     private boolean bindService() {
-
         Intent serviceIntent = new Intent(context, ModiService.class);
         boolean bindResult = context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         return bindResult;
@@ -462,85 +415,112 @@ public class ModiManager {
         context.unbindService(serviceConnection);
     }
 
+    /**
+     * set LogClient
+     *
+     * @param client LogClient
+     */
     public void setLogClient(LogClient client) {
-
-        if (this.mLogClient != null) this.mLogClient = null;
+        if (this.mLogClient != null) {
+            this.mLogClient = null;
+        }
         this.mLogClient = client;
     }
 
+    /**
+     * set NotifyStateClient
+     *
+     * @param client NotifyStateClient
+     */
     public void setNotifyStateClient(NotifyStateClient client) {
-
-        if (this.mNotifyStateClient != null) this.mNotifyStateClient = null;
+        if (this.mNotifyStateClient != null) {
+            this.mNotifyStateClient = null;
+        }
         this.mNotifyStateClient = client;
     }
 
+    /**
+     * set ServiceStateClient
+     *
+     * @param client ServiceStateClient
+     */
     public void setServiceStateClient(ServiceStateClient client) {
-
-        if (this.mServiceStateClient != null) this.mServiceStateClient = null;
+        if (this.mServiceStateClient != null) {
+            this.mServiceStateClient = null;
+        }
         this.mServiceStateClient = client;
     }
 
+    /**
+     * set BluetoothClient
+     *
+     * @param client BluetoothClient
+     */
     public void setBluetoothClient(BluetoothClient client) {
-
-        if (this.mBluetoothClient != null) this.mBluetoothClient = null;
+        if (this.mBluetoothClient != null) {
+            this.mBluetoothClient = null;
+        }
         this.mBluetoothClient = client;
     }
 
     /**
-     * Terminated
+     * terminated
      */
     public void finish() {
 
         disconnectPermanently();
 
         try {
-
             unbindService();
             context.unregisterReceiver(serviceReceiver);
             context.unregisterReceiver(bluetoothAdapterReceiver);
         } catch (Exception e) {
-
             ModiLog.e("finish Error " + e.toString());
         } finally {
-
-            if (bleServiceHandler != null) bleServiceHandler.removeCallbacksAndMessages(null);
-            if (checkRequestHandler != null) checkRequestHandler.removeCallbacksAndMessages(null);
+            if (bleServiceHandler != null) {
+                bleServiceHandler.removeCallbacksAndMessages(null);
+            }
+            if (checkRequestHandler != null) {
+                checkRequestHandler.removeCallbacksAndMessages(null);
+            }
         }
     }
 
 
     /**
-     * 블루투스 지원 여부 체크 - 클래스 변수 초기화 후 사용
+     * Check for Bluetooth support after initialize
      *
-     * @return
+     * @return Bluetooth enabled
      */
     private boolean isSupportedBluetooth() {
-
         if (this.bluetoothAdapter == null) {
-
             return false;
         } else {
-
             return true;
         }
     }
 
-    /**
-     * 디바이스 스캔 시작
-     */
+
     private final int scanDelayTime = 100;
 
+    /**
+     * start device scan
+     *
+     * @return
+     */
     public boolean scan() {
         if (ScanningTimes == 4) {
             ModiLog.d("Scan too frequently");
             return false;
         }
-        if (MODIBackgroundThread.getState() == Thread.State.NEW)
+        if (MODIBackgroundThread.getState() == Thread.State.NEW) {
             MODIBackgroundThread.start();
+        }
 
         setIsDisconnectPermanently(true);
-        if (disconnectTimeoutHandler != null)
+        if (disconnectTimeoutHandler != null) {
             disconnectTimeoutHandler.removeCallbacksAndMessages(null);
+        }
 
         boolean result = true;
         if (isScanning()) {
@@ -550,22 +530,19 @@ public class ModiManager {
         }
 
         try {
-
             if (scanForConnectHandler != null) {
-
                 scanForConnectHandler.removeCallbacksAndMessages(null);
             }
 
-            if (scanForConnectHandler == null)
+            if (scanForConnectHandler == null) {
                 scanForConnectHandler = new Handler(MODIBackgroundThread.getLooper());
-
+            }
         } catch (Exception e) {
-
             ModiLog.e(e.toString());
-
         } finally {
-
-            if (scanForConnectHandler == null) scanForConnectHandler = new Handler();
+            if (scanForConnectHandler == null) {
+                scanForConnectHandler = new Handler();
+            }
         }
 
         scanForConnectHandler.postDelayed(new Runnable() {
@@ -575,82 +552,76 @@ public class ModiManager {
                 startScan();
                 scanForConnectHandler.removeCallbacksAndMessages(null);
             }
-
         }, rescanInterval);
         return result;
     }
 
-    /**
-     * 지정된 디바이스가 검색되면 바로 연결
-     */
+
     private Handler scanForConnectHandler;
     private int rescanInterval = 500;
 
+    /**
+     * Connect as soon as the specified device is detected
+     *
+     * @return connect result
+     */
     public boolean scanForConnect() {
         scanForConnectHandler = new Handler(MODIBackgroundThread.getLooper());
         setIsDisconnectPermanently(false);
-        if (disconnectTimeoutHandler != null)
+        if (disconnectTimeoutHandler != null) {
             disconnectTimeoutHandler.removeCallbacksAndMessages(null);
+        }
 
         boolean result = false;
         if (isScanning()) {
-
             result = this.stopScan();
         }
 
         try {
-
-            if (scanForConnectHandler == null)
+            if (scanForConnectHandler == null) {
                 scanForConnectHandler = new Handler(context.getMainLooper());
-
+            }
         } catch (Exception e) {
-
             ModiLog.e("scanForConnect Error " + e.toString());
-
         } finally {
-
-            if (scanForConnectHandler == null)
+            if (scanForConnectHandler == null) {
                 scanForConnectHandler = new Handler(MODIBackgroundThread.getLooper());
+            }
         }
 
         scanForConnectHandler.postDelayed(new Runnable() {
 
             @Override
             public void run() {
-
                 startScan();
                 scanForConnectHandler.removeCallbacksAndMessages(null);
             }
-
         }, rescanInterval);
 
         return result;
     }
 
     /**
-     * 디바이스 검색 후 자동 연결
+     * Automatically connect after device discovery
      *
      * @param deviceAddress
-     * @return
+     * @return connect result
      */
     public boolean scanForConnect(String deviceAddress) {
-
         deviceInformation.deviceAddress = deviceAddress;
         return scanForConnect();
     }
 
     /**
-     * 디바이스 검색 후 자동 연결
+     * Automatically connect after device discovery
      *
      * @param deviceAddress
-     * @param connectionCallback
-     * @return
+     * @param connectionCallback ConnectionCallback
+     * @return connect result
      */
     public boolean scanForConnect(String deviceAddress, ConnectionCallback connectionCallback) {
-
         deviceInformation.deviceAddress = deviceAddress;
         setConnectionCallback(connectionCallback);
-
         return scanForConnect();
     }
 
@@ -665,35 +636,30 @@ public class ModiManager {
         scanFailCount++;
 
         if (scanFailCount <= 5) {
-
             if (isScanning() == false && isConnected() == false) {
-
                 mModiService.close(new GattCloseListener() {
 
                     @Override
                     public void onClosedBluetoothGatt() {
-
                         if (isScanning() == false && isConnected() == false) {
-
                             ModiLog.d("Restart Scanning Bluetooth Device");
                             if (isDisconnectPermanently) {
-
                                 scan();
                             } else {
-
                                 //scanForConnect();
                             }
                         }
                     }
                 });
             }
-
             return true;
         } else {
-
             return false;
         }
     }
+
+
+    private final int connectDelay = 2000;
 
     /**
      * 검색된 디바이스가 기존에 연결된 디바이스이고 연결을 명시적으로 끊지 않은 경우 디바이스 재연결, 새로 스캔한 경우에는 외부 전송
@@ -702,62 +668,52 @@ public class ModiManager {
      * @param rssi
      * @param scanRecord
      */
-    private final int connectDelay = 2000;
-
     private void sendFoundDevice(BluetoothDevice device, int rssi, byte[] scanRecord) {
 
         String macAddress = "";
 
         try {
-
             macAddress = ManufacturerDataParser.getMacAddress(scanRecord);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         if (isDisconnectPermanently == false && deviceInformation.deviceAddress != null) {
-
             if (deviceInformation.deviceAddress.equalsIgnoreCase(device.getAddress()) || deviceInformation.deviceAddress.equalsIgnoreCase(macAddress)) {
                 stopScan();
                 mModiClient.disconnectedByModulePowerOff();
                 //autoConnnect(device.getAddress());
             }
         } else {
-
             if (mModiClient != null) {
-
                 mModiClient.onFoundDevice(device, rssi, scanRecord);
             }
         }
     }
 
     /**
-     * 디바이스 자동 연결
+     * device autoconnect
      *
      * @param deviceAddress
      */
     private void autoConnnect(final String deviceAddress) {
 
         try {
-
             stopScan();
 
             new Handler(context.getMainLooper()).postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
-
                     connect(deviceAddress);
                 }
             }, connectDelay);
-
         } catch (Exception e) {
 
             new Handler().postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
-
                     connect(deviceAddress);
                 }
             }, connectDelay);
@@ -800,7 +756,6 @@ public class ModiManager {
         }
 
         if (isScanning == false && isDisconnectPermanently == false && isConnected() == false) {
-
             // startKeepScan();
         }
     }
@@ -810,15 +765,15 @@ public class ModiManager {
     private void initBleServiceHandler() {
 
         try {
-
-            if (bleServiceHandler == null)
+            if (bleServiceHandler == null) {
                 bleServiceHandler = new Handler(MODIBackgroundThread.getLooper());
+            }
         } catch (Exception e) {
-
             ModiLog.e("init BleServiceHandler Error " + e.toString());
         } finally {
-
-            if (bleServiceHandler == null) bleServiceHandler = new Handler();
+            if (bleServiceHandler == null) {
+                bleServiceHandler = new Handler();
+            }
         }
     }
 
@@ -829,21 +784,16 @@ public class ModiManager {
     private void startScanner() {
 
         try {
-
             if (bluetoothAdapter == null) {
-
                 setBluetoothAdapter();
             }
 
             if (bluetoothLeScanner == null) {
-
                 bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
             }
 
             bluetoothLeScanner.startScan(getScanCallback());
-
         } catch (Exception e) {
-
             ModiLog.e("startScanner Error " + e.toString());
         }
     }
@@ -852,12 +802,9 @@ public class ModiManager {
     private void stopScanner() {
 
         if (bluetoothLeScanner != null) {
-
             try {
-
                 bluetoothLeScanner.stopScan(getScanCallback());
             } catch (Exception e) {
-
                 ModiLog.e("stopScanner Error " + e.toString());
             }
         }
@@ -869,30 +816,22 @@ public class ModiManager {
     private void sendScannedDevice(ScanResult result) {
 
         try {
-
             if (isScanning) {
-
                 deviceName = result.getDevice().getName();
 
                 if (deviceName != null) {
-
                     if (deviceName.toUpperCase().contains(ModiConstants.BROADCAST_NAME.toUpperCase())) {
-
                         ModiLog.d("isScanning " + isScanning + " ====== LeScanner device: " + deviceName + " address: " + result.getDevice().getAddress());
 
                         if (result.getScanRecord() != null) {
-
                             sendFoundDevice(result.getDevice(), 0, result.getScanRecord().getBytes());
                         } else {
-
                             sendFoundDevice(result.getDevice(), 0, null);
                         }
                     }
                 }
             }
-
         } catch (Exception e) {
-
             ModiLog.e("sendScannedDevice Error " + e.toString());
         }
     }
@@ -902,18 +841,15 @@ public class ModiManager {
 
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
-
             super.onBatchScanResults(results);
 
             for (ScanResult result : results) {
-
                 sendScannedDevice(result);
             }
         }
 
         @Override
         public void onScanFailed(int errorCode) {
-
             super.onScanFailed(errorCode);
             boolean result = onFailureScanning();
             setIsScanning(true);
@@ -933,7 +869,6 @@ public class ModiManager {
 
     @TargetApi(21)
     private ScanCallback getScanCallback() {
-
         return scanCallback;
     }
 
@@ -943,19 +878,17 @@ public class ModiManager {
     private void startDefaultScan() {
 
         try {
-
-            if (bluetoothAdapter == null) setBluetoothAdapter();
+            if (bluetoothAdapter == null) {
+                setBluetoothAdapter();
+            }
 
             // 버전 21 이상 부터는 leScanner 사용
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-
                 bluetoothAdapter.startLeScan(leScanCallback);
             } else {
-
                 startScanner();
             }
         } catch (Exception e) {
-
             ModiLog.e("startDefaultScan Error " + e.toString());
         }
     }
@@ -966,25 +899,21 @@ public class ModiManager {
     private void stopDefaultScan() {
 
         try {
-
-            if (bluetoothAdapter == null) setBluetoothAdapter();
+            if (bluetoothAdapter == null) {
+                setBluetoothAdapter();
+            }
 
             if (isScanning) {
 
                 // 버전 21 이상 부터는 leScanner 사용
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-
                     bluetoothAdapter.stopLeScan(leScanCallback);
                 } else {
-
                     stopScanner();
                 }
-
                 setIsScanning(false);
             }
-
         } catch (Exception e) {
-
             ModiLog.e("stopDefaultScan Error " + e.toString());
         }
     }
@@ -992,28 +921,29 @@ public class ModiManager {
     private boolean startScan() {
 
         ModiLog.d("Start Scan");
-        if (bluetoothAdapter == null) setBluetoothAdapter();
+        if (bluetoothAdapter == null) {
+            setBluetoothAdapter();
+        }
 
         if (isSupportedBluetooth()) {
 
             setIsScanning(true);
-            if (bleServiceHandler == null) initBleServiceHandler();
+            if (bleServiceHandler == null) {
+                initBleServiceHandler();
+            }
 
             bleServiceHandler.postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
-
                     startDefaultScan();
                     bleServiceHandler.removeCallbacksAndMessages(null);
                     stopScanAutomaticly();
                 }
 
             }, scanDelayTime);
-
             return true;
         } else {
-
             ModiLog.d("Fail to Start Scan: no BluetoothAdapter");
             return false;
         }
@@ -1027,27 +957,26 @@ public class ModiManager {
     private boolean startKeepScan() {
 
         ModiLog.d("Start Keep Scan");
-        if (bluetoothAdapter == null) setBluetoothAdapter();
+        if (bluetoothAdapter == null) {
+            setBluetoothAdapter();
+        }
 
         if (isSupportedBluetooth()) {
-
             setIsScanning(true);
-
-            if (bleServiceHandler == null) initBleServiceHandler();
+            if (bleServiceHandler == null) {
+                initBleServiceHandler();
+            }
             bleServiceHandler.postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
-
                     startDefaultScan();
                     bleServiceHandler.removeCallbacksAndMessages(null);
                     stopScanAutomaticly();
                 }
             }, 2000);
-
             return true;
         } else {
-
             ModiLog.d("Fail to Start Keep Scan: no BluetoothAdapter");
             return false;
         }
@@ -1083,9 +1012,9 @@ public class ModiManager {
     }
 
     /**
-     * 디바이스 스캔 즉시 종료
+     * stop device scan immediately
      *
-     * @return 블루투스 지원 여부 or 스캔 중 여부
+     * @return bluetooth enabled or device scanning status
      */
     public boolean stopScan() {
 
@@ -1106,19 +1035,18 @@ public class ModiManager {
     }
 
     /**
-     * 디바이스 스캔중 여부
+     * device scanning status
      *
-     * @return 디바이스 스캔중 여부
+     * @return device scanning status
      */
     public boolean isScanning() {
-
         return isScanning;
     }
 
     /**
-     * 최근 연결된 디바이스 존재 여부
+     * recently connected device exists
      *
-     * @return 연결된 디바이스 존재 여부
+     * @return Is a connected device present?
      */
     public boolean hasDeviceAddress() {
 
@@ -1128,13 +1056,14 @@ public class ModiManager {
         return (preference.getDeviceAddress() == null);
     }
 
-    /**
-     * 디바이스 연결
-     *
-     * @param deviceAddress 디바이스 주소
-     */
+
     private Handler connectHandler;
 
+    /**
+     * connect device
+     *
+     * @param deviceAddress
+     */
     public void connect(final String deviceAddress) {
 
         setIsDisconnectPermanently(false);
@@ -1179,9 +1108,9 @@ public class ModiManager {
     }
 
     /**
-     * 최근 연결된 디바이스 재연결
+     * redirect recently connected devices
      *
-     * @return 재연결 성공 여부
+     * @return redirection successful
      */
     public boolean connect() {
 
@@ -1205,7 +1134,7 @@ public class ModiManager {
     }
 
     /**
-     * 연결 취소(스캔 시 스캔 종료)
+     * cancel connect (exit scan on scaning)
      */
     public void cancelConnect() {
 
@@ -1220,31 +1149,36 @@ public class ModiManager {
         }
     }
 
+    private ConnectionCallback connectionCallback;
+
     /**
-     * 디바이스 연결 종료
+     * set ConnectionCallback
+     *
+     * @param connectionCallback ConnectionCallback
      */
-    public ConnectionCallback connectionCallback;
-
     public void setConnectionCallback(ConnectionCallback connectionCallback) {
-
         this.connectionCallback = connectionCallback;
     }
 
+    /**
+     * disconnect device
+     */
     public void disconnect() {
-
         try {
-
             if (mModiService != null) {
-
                 ModiLog.d("Ask for disconnecting temporary to service...");
                 mModiService.disconnect();
             }
         } catch (Exception e) {
-
             ModiLog.e("disconnect " + e.toString());
         }
     }
 
+    /**
+     * disconnect device
+     *
+     * @param connectionCallback ConnectionCallback
+     */
     public void disconnect(ConnectionCallback connectionCallback) {
 
         setConnectionCallback(connectionCallback);
@@ -1253,50 +1187,54 @@ public class ModiManager {
 
     private Handler disconnectTimeoutHandler;
 
+    /**
+     * disconnect permanently
+     */
     public void disconnectPermanently() {
 
         setIsDisconnectPermanently(true);
         ModiLog.d("call disconnectPermanently");
 
         try {
-
-            if (isScanning) isScanning = false;
+            if (isScanning) {
+                isScanning = false;
+            }
             stopDefaultScan();
 
-            if (disconnectTimeoutHandler != null)
+            if (disconnectTimeoutHandler != null) {
                 disconnectTimeoutHandler.removeCallbacksAndMessages(null);
+            }
 
-            if (disconnectTimeoutHandler == null)
+            if (disconnectTimeoutHandler == null) {
                 disconnectTimeoutHandler = new Handler(MODIBackgroundThread.getLooper());
+            }
 
             if (mModiService != null) {
-
                 ModiLog.d("Ask for disconnecting permanently to Service...");
                 mModiService.isDisconnectPermanently = true;
                 mModiService.disconnect();
             } else {
-
                 ModiLog.d("ModiService is NULL");
             }
         } catch (Exception e) {
-
             ModiLog.e("disconnectPermanently Error " + e.toString());
         }
     }
 
     /**
-     * 블루투스 연결 종료
+     * disconnect permanently
      *
-     * @param connectionCallback
+     * @param connectionCallback ConnectionCallback
      */
     public void disconnectPermanently(ConnectionCallback connectionCallback) {
-
         setConnectionCallback(connectionCallback);
         disconnectPermanently();
     }
 
     /**
-     * 디바이스 연결 상태 확인
+     * Check Device Connection Status
+     *
+     * @return is connected ?
      */
     public boolean isConnected() {
 
@@ -1310,20 +1248,21 @@ public class ModiManager {
         return isConnected;
     }
 
-
+    /**
+     * is device connected with system
+     *
+     * @return result
+     */
     public boolean isDeviceConnectedWithSystem() {
 
         String deviceAddress = deviceInformation.deviceAddress;
 
         try {
-
             if (mModiService != null && deviceAddress != null && !"".equals(deviceAddress)) {
-
                 boolean isDeviceConnected = mModiService.isDeviceConnected(deviceAddress);
                 return isDeviceConnected;
             }
         } catch (Exception e) {
-
             ModiLog.e("isDeviceConnectedWithSystem Error " + e.toString());
         }
 
@@ -1332,24 +1271,20 @@ public class ModiManager {
 
 
     private int connectedState() {
-
         return mModiService.mConnectionState;
     }
 
     /**
-     * 속성 발견 상태 확인
+     * check characteristics
      *
-     * @return 전체 속성 발견 여부
+     * @return is discovered characteristics
      */
     public boolean isDiscoveredCharacteristics() {
-
         return isDiscoveredCharacteristics;
     }
 
     private void setDiscoveredCharacteristics(boolean isDiscoveredCharacteristics) {
-
         if (isDiscoveredCharacteristics == false) {
-
             characteristicsList.clear();
         }
         this.isDiscoveredCharacteristics = isDiscoveredCharacteristics;
@@ -1363,17 +1298,16 @@ public class ModiManager {
     private void discoverService() {
 
         ModiLog.d("call discoverService");
-
         try {
-
-            if (discoverServiceHandler == null)
+            if (discoverServiceHandler == null) {
                 discoverServiceHandler = new Handler(context.getMainLooper());
+            }
         } catch (Exception e) {
-
             ModiLog.e("discoverServiceHandler Error " + e.toString());
         } finally {
-
-            if (discoverServiceHandler == null) discoverServiceHandler = new Handler();
+            if (discoverServiceHandler == null) {
+                discoverServiceHandler = new Handler();
+            }
         }
 
         discoverServiceHandler.postDelayed(new Runnable() {
@@ -1382,7 +1316,6 @@ public class ModiManager {
             public void run() {
 
                 if (mModiService != null && isConnected()) {
-
                     isDiscoveredServices = false;
                     discoverServiceRetryCount++;
                     mModiService.discoverService();
@@ -1399,29 +1332,22 @@ public class ModiManager {
             public void run() {
 
                 if (isDiscoveredServices == false) {
-
                     if (mModiService != null && isConnected()) {
-
                         if (discoverServiceRetryCount <= 5) {
-
                             discoverService();
                         } else {
-
                             // 5회 시도 후 실패 시 연결 해제
                             if (mModiService.isBluetoothGattConnected()) {
-
                                 disconnect();
                             } else {
-
-                                if (connectionCallback != null)
+                                if (connectionCallback != null) {
                                     connectionCallback.onDisconnectFailure();
+                                }
                             }
-
                             discoverServiceHandler.removeCallbacksAndMessages(null);
                         }
                     }
                 }
-
                 // discoverServiceHandler.removeCallbacksAndMessages(null);
             }
         }, 5000);
@@ -1432,14 +1358,15 @@ public class ModiManager {
     private void discoverCharacteristics() {
 
         try {
-
-            if (discoveryHandler == null) discoveryHandler = new Handler(context.getMainLooper());
+            if (discoveryHandler == null) {
+                discoveryHandler = new Handler(context.getMainLooper());
+            }
         } catch (Exception e) {
-
             ModiLog.e("init discoveryHandler Error " + e.toString());
         } finally {
-
-            if (discoveryHandler == null) discoveryHandler = new Handler();
+            if (discoveryHandler == null) {
+                discoveryHandler = new Handler();
+            }
         }
 
         discoveryHandler.postDelayed(new Runnable() {
@@ -1458,13 +1385,18 @@ public class ModiManager {
      * 서비스 상태 및 데이터 수신
      */
     private void onChangedConnectState() {
-
-        if (disconnectTimeoutHandler != null)
+        if (disconnectTimeoutHandler != null) {
             disconnectTimeoutHandler.removeCallbacksAndMessages(null);
-        if (discoverServiceHandler != null) discoverServiceHandler.removeCallbacksAndMessages(null);
-        if (discoveryHandler != null) discoveryHandler.removeCallbacksAndMessages(null);
-        if (recheckDisconnectHandler != null)
+        }
+        if (discoverServiceHandler != null) {
+            discoverServiceHandler.removeCallbacksAndMessages(null);
+        }
+        if (discoveryHandler != null) {
+            discoveryHandler.removeCallbacksAndMessages(null);
+        }
+        if (recheckDisconnectHandler != null) {
             recheckDisconnectHandler.removeCallbacksAndMessages(null);
+        }
         isDiscoveredServices = false;
     }
 
@@ -1474,27 +1406,19 @@ public class ModiManager {
         disconnectedCount++;
 
         if (isDisconnectPermanently == false) {
-
             if (disconnectedCount >= connectingTryLimit) {
-
                 disconnectedCount = 0;
-
                 if (connectionCallback != null) {
-
                     connectionCallback.onDisconnectFailure();
                 } else {
-
                     rescanInterval = 10000;
                     scan();
                 }
             } else {
-
                 rescanInterval = 3000;
                 scan();
             }
-
         } else {
-
             deviceInformation.deviceAddress = null;
         }
 
@@ -1503,7 +1427,9 @@ public class ModiManager {
         characteristicsNotifyState.clear();
         discoverServiceRetryCount = 0;
 
-        if (mModiClient != null) mModiClient.onDisconnected();
+        if (mModiClient != null) {
+            mModiClient.onDisconnected();
+        }
     }
 
     /**
@@ -1517,21 +1443,16 @@ public class ModiManager {
     private void recheckDisconnect() {
 
         if (deviceInformation.deviceAddress != null) {
-
             try {
-
                 boolean result = isDeviceConnectedWithSystem();
                 ModiLog.d(String.format("recheckDisconnect Core Connection State: %B App Connection State: %B", result, isConnected));
 
                 if (result == true && isConnected == false) {
-
                     if (connectionCallback != null) {
-
                         connectionCallback.onDisconnectFailure();
                     }
                 }
             } catch (Exception e) {
-
                 ModiLog.e("recheckDisconnect Error " + e.toString());
             }
         }
@@ -1549,17 +1470,14 @@ public class ModiManager {
             long broadcastingTimestamp = intent.getLongExtra(ModiConstants.KEY_ARRIVED_TIMESTAMP, 0);
 
             if (latestBroadcastingTimestamp == broadcastingTimestamp) {
-
                 ModiLog.d(action + " latestBroadcastingTimestamp " + latestBroadcastingTimestamp + " broadcastingTimestamp" + broadcastingTimestamp);
             } else {
-
                 latestBroadcastingTimestamp = broadcastingTimestamp;
 
                 //----------
                 // 디바이스 연결
                 //----------
                 if (ModiService.ACTION_GATT_CONNECTED.equals(action)) {
-
                     ModiLog.d("ACTION_GATT_CONNECTED");
                     isConnected = true;
                     rescanInterval = 1000;
@@ -1570,7 +1488,9 @@ public class ModiManager {
                     discoverService();
                     setIsDisconnectPermanently(false);
 
-                    if (mModiClient != null) mModiClient.onConnected();
+                    if (mModiClient != null) {
+                        mModiClient.onConnected();
+                    }
                 }
 
                 //----------
@@ -1585,23 +1505,22 @@ public class ModiManager {
 
                     // 연결 해제 검증
                     try {
-
-                        if (recheckDisconnectHandler == null)
+                        if (recheckDisconnectHandler == null) {
                             recheckDisconnectHandler = new Handler(context.getMainLooper());
+                        }
                     } catch (Exception e) {
-
                         ModiLog.d("recheckDisconnectHandler Error " + e.toString());
                     } finally {
 
-                        if (recheckDisconnectHandler == null)
+                        if (recheckDisconnectHandler == null) {
                             recheckDisconnectHandler = new Handler();
+                        }
                     }
 
                     recheckDisconnectHandler.postDelayed(new Runnable() {
 
                         @Override
                         public void run() {
-
                             recheckDisconnect();
                         }
                     }, recheckDisconnectDelayTime);
@@ -1613,7 +1532,6 @@ public class ModiManager {
                 // 속성 발견
                 //----------
                 else if (ModiService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-
                     ModiLog.d("ACTION_GATT_SERVICES_DISCOVERED");
                     discoverServiceHandler.removeCallbacksAndMessages(null);
                     isDiscoveredServices = true;
@@ -1624,18 +1542,15 @@ public class ModiManager {
                 // 알림 변경
                 //----------
                 else if (ModiService.ACTION_NOTIFICATION_STATE_CHANGED.equals(action)) {
-
                     ModiLog.d("ACTION_NOTIFICATION_STATE_CHANGED");
                     String uuid = intent.getStringExtra(ModiConstants.KEY_UUID);
 
                     if (uuid != null) {
-
                         boolean result = putCharacteristicsNotifyState(uuid);
                         boolean enable = checkCharacteristicsNotifyState(uuid);
                         ModiLog.d("ACTION_NOTIFICATION_STATE_CHANGED " + ModiGattAttributes.lookup(uuid, "No Name") + " result " + result + " value " + enable);
 
                         if (mNotifyStateClient != null) {
-
                             mNotifyStateClient.onChangedNotificationState(Characteristics.get(uuid), enable);
                         }
                     }
@@ -1645,13 +1560,10 @@ public class ModiManager {
                 // 서비스 바인드
                 //----------
                 else if (ModiService.ACTION_GATT_SERVICE_BIND.equals(action)) {
-
                     ModiLog.d("ACTION_GATT_SERVICE_BIND");
                     if (mServiceStateClient != null) {
-
                         mServiceStateClient.onBind();
                     } else {
-
                         ModiLog.d("ServiceStateClient is NULL");
                     }
                 }
@@ -1660,13 +1572,10 @@ public class ModiManager {
                 // 서비스 바인드 해제
                 //----------
                 else if (ModiService.ACTION_GATT_SERVICE_UNBIND.equals(action)) {
-
                     ModiLog.d("ACTION_GATT_SERVICE_UNBIND");
                     if (mServiceStateClient != null) {
-
                         mServiceStateClient.onUnBind();
                     } else {
-
                         ModiLog.d("ServiceStateClient is NULL");
                     }
                 }
@@ -1675,22 +1584,18 @@ public class ModiManager {
                 // 블루투스 통신
                 //----------
                 else if (ModiService.ACTION_DATA_AVAILABLE.equals(action)) {
-
                     //ModiLog.d("ACTION_DATA_AVAILABLE");
                     Characteristics uuid = Characteristics.get(intent.getStringExtra(ModiService.EXTRA_DATA_GROUP));
                     BluetoothGattCharacteristic characteristic = characteristicsList.get(uuid);
 
                     if (uuid != null) {
-
                         // ModiLog.d( uuid.name() + ": " + intent.getStringExtra(ModiConstants.KEY_RAW_DATA));
 
                         try {
-
                             new Handler(MODIBackgroundThread.getLooper()).post(new Runnable() {
 
                                 @Override
                                 public void run() {
-
                                     if (mModiClient != null) {
                                         byte[] rawData = intent.getByteArrayExtra(ModiConstants.KEY_RAW_DATA_BYTE);
 
@@ -1708,21 +1613,22 @@ public class ModiManager {
                                             } else if (rawData[0] == 0x01) {
                                                 byte compareData = rawData[2];
                                                 if (rawData[1] == 0x03) {
-                                                    mModiClient.onBuzzerState(compareData);
+                                                    State.Buzzer state = (compareData == 0x01) ? State.Buzzer.ON : State.Buzzer.OFF;
+                                                    mModiClient.onBuzzerState(state);
                                                 }
                                             }
                                         } else {
                                             //프로토콜 V2
                                             byte compareData = rawData[8];
                                             if (rawData[4] == 0x00 && rawData[5] == 0x01) {
-                                                mModiClient.onBuzzerState(compareData);
+                                                State.Buzzer state = (compareData == 0x01) ? State.Buzzer.ON : State.Buzzer.OFF;
+                                                mModiClient.onBuzzerState(state);
                                             }
                                         }
                                     }
                                 }
                             });
                         } catch (Exception e) {
-
                             ModiLog.e("receivedData Error " + e.toString());
                         }
                     }
@@ -1732,7 +1638,6 @@ public class ModiManager {
                 // 알림 변경
                 //----------
                 else if (ModiService.ACTION_WRITE_CHACTERISTIC.equals(action)) {
-
                     Characteristics uuid = Characteristics.get(intent.getStringExtra(ModiService.EXTRA_DATA_GROUP));
                     ModiLog.d(String.format("ACTION_WRITE_CHACTERISTIC %s", ModiGattAttributes.lookup(uuid.code(), "")));
                 }
@@ -1748,7 +1653,9 @@ public class ModiManager {
 
     private void discoverBluetoothCharacteristics(List<BluetoothGattService> gattServicesList) {
 
-        if (gattServicesList == null) return;
+        if (gattServicesList == null) {
+            return;
+        }
 
         String uuid16;
 
@@ -1766,7 +1673,6 @@ public class ModiManager {
                     final Characteristics characteristics = Characteristics.get(uuid16);
 
                     if (characteristics == null) {
-
                         continue;
                     }
 
@@ -1799,24 +1705,18 @@ public class ModiManager {
         String deviceName = null;
 
         try {
-
             deviceName = mModiService.getConnectedDeviceName();
             if (deviceName == null) deviceName = "";
         } catch (Exception e) {
-
             ModiLog.e("getConnectedDeviceName Error " + e.toString());
         }
 
         if (characteristicsList.size() < mCharacteristicsCountMax && deviceName != null && deviceName.contains("UP")) {
-
             ModiLog.d("No Service Found");
         } else {
-
             if (characteristicsList.size() < mCharacteristicsCountMax) {
-
                 ModiLog.e("Discovered Not Enough Characteristics" + characteristicsList.size());
             } else {
-
                 ModiLog.d("Discovered All Characteristics");
             }
 
@@ -1824,11 +1724,11 @@ public class ModiManager {
             setDiscoveredCharacteristics(true);
 
             if (mModiClient != null) {
-
                 mModiClient.onDiscoveredService();
             }
-            if (checkRequestHandler == null)
+            if (checkRequestHandler == null) {
                 checkRequestHandler = new Handler(MODIBackgroundThread.getLooper());
+            }
             checkRequestHandler.postDelayed(CheckRequestRunnable, 500);
         }
     }
@@ -1850,24 +1750,17 @@ public class ModiManager {
             checkRequestHandler.removeCallbacksAndMessages(null);
 
             if (mModiService.getRequestQueueSize() == 0) {
-
                 checkRequestTrialCount++;
             } else {
-
                 checkRequestTrialCount = 0;
             }
 
             if (mModiService.getRequestQueueSize() > 0 || checkRequestTrialCount < 100) {
-
                 if (isConnected()) {
-
                     checkRequestHandler.postDelayed(CheckRequestRunnable, checkRequestQueueInterval);
                 }
-
             } else {
-
                 if (isConnected()) {
-
                     checkRequestHandler.postDelayed(CheckRequestRunnable, checkRequestQueueIntervalOnGoing);
                 }
             }
@@ -1878,7 +1771,6 @@ public class ModiManager {
      * get Characteristic from UUID
      */
     private BluetoothGattCharacteristic getCharacteristic(String uuid16) {
-
         return characteristicsList.get(uuid16);
     }
 
@@ -1890,10 +1782,8 @@ public class ModiManager {
     private void readCharacteristic(final BluetoothGattCharacteristic characteristic) {
 
         try {
-
             mModiService.addRequest(RequestQueue.REQUEST_READ, characteristic);
         } catch (Exception e) {
-
             ModiLog.e("readCharacteristic Error " + e);
         }
     }
@@ -1903,11 +1793,9 @@ public class ModiManager {
         final BluetoothGattCharacteristic characteristic = getCharacteristic(uuid16);
 
         if (characteristic != null) {
-
             readCharacteristic(characteristic);
             return true;
         } else {
-
             return false;
         }
     }
@@ -1918,10 +1806,8 @@ public class ModiManager {
     private void writeCharacteristic(final BluetoothGattCharacteristic characteristic) {
 
         try {
-
             mModiService.addRequest(RequestQueue.REQUEST_WRITE, characteristic);
         } catch (Exception e) {
-
             ModiLog.e("writeCharacteristic Error " + e);
         }
     }
@@ -1931,11 +1817,9 @@ public class ModiManager {
         final BluetoothGattCharacteristic characteristic = characteristicsList.get(uuid16);
 
         if (characteristic != null) {
-
             writeCharacteristic(characteristic);
             return true;
         } else {
-
             return false;
         }
     }
@@ -1966,7 +1850,6 @@ public class ModiManager {
      * @return
      */
     private static IntentFilter makeBluetoothAdapterIntentFilter() {
-
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         return intentFilter;
@@ -1977,16 +1860,12 @@ public class ModiManager {
     // 속성 알림 시작/종료
     //--------------------------------------------------
     private Boolean checkCharacteristicsNotifyState(String uuid16) {
-
         try {
-
             Boolean notifyState = characteristicsNotifyState.get(uuid16);
             return notifyState;
         } catch (Exception e) {
-
             ModiLog.e("checkCharacteristicsNotifyState " + ModiGattAttributes.lookup(uuid16, "No Name") + " Error" + e.toString());
         }
-
         return false;
     }
 
@@ -1995,25 +1874,21 @@ public class ModiManager {
         Boolean notifyState = getTempCharacteristicsNotifyState(uuid16);
 
         if (notifyState != null) {
-
             characteristicsNotifyState.put(uuid16, notifyState);
             characteristicsNotifyState.remove("tmp" + uuid16);
             ModiLog.d("putCharacteristicsNotifyState " + uuid16 + " notify " + notifyState.toString());
             return true;
         } else {
-
             ModiLog.d("putCharacteristicsNotifyState " + uuid16 + " no temp notify value!!!!!! ");
             return false;
         }
     }
 
     private void putTempCharacteristicsNotifyState(String uuid16, boolean notifyState) {
-
         characteristicsNotifyState.put("tmp" + uuid16, new Boolean(notifyState));
     }
 
     private Boolean getTempCharacteristicsNotifyState(String uuid16) {
-
         return characteristicsNotifyState.get("tmp" + uuid16);
     }
 
@@ -2025,21 +1900,17 @@ public class ModiManager {
     private void startNotification(final BluetoothGattCharacteristic characteristic) {
 
         try {
-
             String uuid16 = ModiGattAttributes.convert16UUID(characteristic.getUuid());
             Boolean isEnable = checkCharacteristicsNotifyState(uuid16);
 
             if (isEnable == null || isEnable == false) {
-
                 putTempCharacteristicsNotifyState(uuid16, true);
                 ModiLog.d("startNotification " + ModiGattAttributes.lookup(uuid16, "no name"));
                 mModiService.addRequest(RequestQueue.REQUEST_NOTIFY, characteristic, true);
             } else {
-
                 ModiLog.d("startNotification is not operated, " + ModiGattAttributes.lookup(uuid16, "no name") + " is already enable");
             }
         } catch (Exception e) {
-
             ModiLog.e("startNotification Error " + e);
         }
     }
@@ -2055,11 +1926,9 @@ public class ModiManager {
         final BluetoothGattCharacteristic characteristic = getCharacteristic(uuid16);
 
         if (characteristic != null) {
-
             startNotification(characteristic);
             return true;
         } else {
-
             return false;
         }
     }
@@ -2075,11 +1944,9 @@ public class ModiManager {
         final BluetoothGattCharacteristic characteristic = getCharacteristic(characteristics.code());
 
         if (characteristic != null) {
-
             startNotification(characteristic);
             return true;
         } else {
-
             return false;
         }
     }
@@ -2092,21 +1959,17 @@ public class ModiManager {
     private void stopNotification(final BluetoothGattCharacteristic characteristic) {
 
         try {
-
             String uuid16 = ModiGattAttributes.convert16UUID(characteristic.getUuid());
             Boolean isDisable = checkCharacteristicsNotifyState(uuid16);
 
             if (isDisable == null || isDisable == true) {
-
                 putTempCharacteristicsNotifyState(uuid16, false);
                 ModiLog.d("stopNotification " + ModiGattAttributes.lookup(uuid16, "no name"));
                 mModiService.addRequest(RequestQueue.REQUEST_NOTIFY, characteristic, false);
             } else {
-
                 ModiLog.d("stopNotification is not operated, " + ModiGattAttributes.lookup(uuid16, "no name") + " is already disable");
             }
         } catch (Exception e) {
-
             ModiLog.e("stopNotification Error " + e);
         }
     }
@@ -2122,11 +1985,9 @@ public class ModiManager {
         BluetoothGattCharacteristic characteristic = getCharacteristic(uuid16);
 
         if (characteristic != null) {
-
             stopNotification(characteristic);
             return true;
         } else {
-
             return false;
         }
     }
@@ -2142,38 +2003,52 @@ public class ModiManager {
         BluetoothGattCharacteristic characteristic = getCharacteristic(characteristics.code());
 
         if (characteristic != null) {
-
             stopNotification(characteristic);
             return true;
         } else {
-
             return false;
         }
     }
 
+    /**
+     * start notifying
+     */
     public void startNotifying() {
-
         startNotification(Characteristics.DEVICE_CHAR_TX_RX);
     }
 
+    /**
+     * stop notifying
+     */
     public void stopNotifying() {
-
         stopNotification(Characteristics.DEVICE_CHAR_TX_RX);
     }
 
+    /**
+     * send type and message to MODI Network Module
+     *
+     * @param data
+     */
     public void sendData(byte[] data) {
 
-        if (!isConnected()) return;
+        if (!isConnected()) {
+            return;
+        }
 
         BluetoothGattCharacteristic characteristic = characteristicsList.get(ModiGattAttributes.DEVICE_CHAR_TX_RX);
 
         if (characteristic != null) {
-
             characteristic.setValue(data);
             writeCharacteristic(characteristic);
         }
     }
 
+    /**
+     * send type and message to MODI Network Module
+     *
+     * @param type data type
+     * @param msg  data value
+     */
     public void sendData(int type, byte[] msg) {
         if (isConnected()) {
             //ID 전환
@@ -2229,27 +2104,39 @@ public class ModiManager {
         }
     }
 
-    public void sendButtonState(boolean state) {
+    /**
+     * send button state to MODI Network Module
+     *
+     * @param state button state
+     */
+    public void sendButtonState(State.Button state) {
 
-        if (!isConnected()) return;
+        if (!isConnected()) {
+            return;
+        }
 
         if ("Luxrobo".equals(new String(getMODI_ID()))) {
             //프로토콜 V1
             byte packet[] = new byte[1];
-            packet[0] = (byte) ((state) ? 0x01 : 0x00);
+            packet[0] = (byte) ((state == State.Button.PRESSED) ? 0x01 : 0x00);
             sendData(0, packet);
         } else {
             //프로토콜 V2
             byte packet[] = new byte[8];
-            for (int i=0;i<8;i++) {
+            for (int i = 0; i < 8; i++) {
                 packet[i] = 0x00;
             }
-            packet[0] = (byte) ((state) ? 0x01 : 0x00);
+            packet[0] = (byte) ((state == State.Button.PRESSED) ? 0x01 : 0x00);
             sendData(2, packet);
         }
     }
 
-    public void sendJoystickState(int direction) {
+    /**
+     * send joystick state to MODI Network Module
+     *
+     * @param direction joystick direction
+     */
+    public void sendJoystickState(State.Joystick direction) {
 
         if (!isConnected()) return;
 
@@ -2257,36 +2144,35 @@ public class ModiManager {
             //프로토콜 V1
             byte packet[] = new byte[1];
 
-            switch (direction) {
-                case 2:     // up
-                    packet[0] = 0x01;
-                    break;
-                case 3:     // down
-                    packet[0] = 0x04;
-                    break;
-                case 4:     // left
-                    packet[0] = 0x08;
-                    break;
-                case 5:     // right
-                    packet[0] = 0x02;
-                    break;
-                default:
-                    packet[0] = 0x00;
-                    break;
+            if (direction == State.Joystick.UP) {
+                packet[0] = 0x01;
+            } else if (direction == State.Joystick.DOWN) {
+                packet[0] = 0x04;
+            } else if (direction == State.Joystick.LEFT) {
+                packet[0] = 0x08;
+            } else if (direction == State.Joystick.RIGHT) {
+                packet[0] = 0x02;
+            } else {
+                packet[0] = 0x00;
             }
 
             sendData(2, packet);
         } else {
             //프로토콜 V2
             byte packet[] = new byte[8];
-            for (int i=0;i<8;i++) {
+            for (int i = 0; i < 8; i++) {
                 packet[i] = 0x00;
             }
-            packet[0] = (byte) direction;
+            packet[0] = (byte) direction.state();
             sendData(3, packet);
         }
     }
 
+    /**
+     * send user data to MODI Network Module
+     *
+     * @param data user data
+     */
     public void sendUserData(int data) {
 
         if (!isConnected()) return;
@@ -2300,7 +2186,7 @@ public class ModiManager {
             }
 
             for (int i = 0; i < 4; i++) {
-                packet[i+2] = (byte)((data >> (i *8)) & 0xFF);
+                packet[i + 2] = (byte) ((data >> (i * 8)) & 0xFF);
             }
 
             sendData(packet);
@@ -2311,7 +2197,6 @@ public class ModiManager {
     }
 
 
-
     //--------------------------------------------------
     // 파일로그
     //--------------------------------------------------
@@ -2320,95 +2205,89 @@ public class ModiManager {
     private static final int FILE_LOG_MAX_LENGTH = 1024 * 1024 * 10;
 
     private void initLogData() {
-
         if (NEED_FILE_LOG) {
-
-            if (logDataBuilder != null) logDataBuilder = null;
+            if (logDataBuilder != null) {
+                logDataBuilder = null;
+            }
             logDataBuilder = new StringBuilder();
         }
     }
 
     private void deinitLogData() {
-
         if (NEED_FILE_LOG) {
-
             if (logDataBuilder.length() > 0) {
-
                 writeLogData();
             }
-
             logDataBuilder = null;
         }
     }
 
     /**
-     * 로그 데이터 파일 저장
+     * save log data file
      *
-     * @param data 데이터 타입
+     * @param data data type
      */
     public void saveLogData(String data) {
 
         if (NEED_FILE_LOG) {
-
-            if (logDataBuilder == null) initLogData();
+            if (logDataBuilder == null) {
+                initLogData();
+            }
 
             try {
-
                 logDataBuilder.append(String.format(Locale.KOREAN, "[%s] %s \r\n", ModiFileHandler.getDate(), data));
 
                 if (logDataBuilder.length() > FILE_LOG_MAX_LENGTH) {
-
                     writeLogData();
                 }
             } catch (Exception e) {
-
                 ModiLog.e("saveLogData Error " + e);
             }
         }
     }
 
     /**
-     * 로그 데이터 파일 저장
+     * write log data file
      */
     private void writeLogData() {
 
         if (NEED_FILE_LOG) {
-
             final ModiFileHandler mpsFileHandler = new ModiFileHandler(context);
 
             try {
-
                 new Handler(MODIBackgroundThread.getLooper()).postDelayed(new Runnable() {
 
                     @Override
                     public void run() {
-
                         if (logDataBuilder != null && logDataBuilder.length() > 0) {
-
                             String fileName = mpsFileHandler.writeLogFile(logDataBuilder.toString(), ModiFileHandler.LOG_RX_DATA);
-
                             if (fileName != null) {
-
                                 ModiLog.d("Success Wrote Log File " + fileName);
                                 logDataBuilder.delete(0, logDataBuilder.length());
                             } else {
-
                                 ModiLog.d("Failed Wrote Log File");
                             }
                         }
                     }
                 }, 10);
             } catch (Exception e) {
-
                 ModiLog.e("writeLogData Error " + e.toString());
             }
         }
     }
 
+    /**
+     * clear Data Request Queue
+     */
     public void clearRequetQueue() {
         mModiService.clearQueue();
     }
 
+    /**
+     * get MODI Network Module ID
+     *
+     * @return MODI Network Module ID
+     */
     public byte[] getMODI_ID() {
         return mModiService.getMODI_ID();
     }

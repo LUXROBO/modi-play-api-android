@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.luxrobo.modiplay.api.core.ModiManager;
+import com.luxrobo.modiplay.api.enums.State;
 import com.luxrobo.modiplay.api.utils.ModiLog;
 
 /**
@@ -40,11 +41,11 @@ public class PageBFragment extends Fragment implements Button.OnTouchListener {
         return view;
     }
 
-    public void onBuzzerState(final int state) {
+    public void onBuzzerState(final State.Buzzer state) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if (state == ModiManager.STATE_BUZZER_ON) {
+                if (state == State.Buzzer.ON) {
                     buzzerTextView.setText("On");
                 } else {
                     buzzerTextView.setText("Off");
@@ -55,31 +56,31 @@ public class PageBFragment extends Fragment implements Button.OnTouchListener {
 
     @Override
     public boolean onTouch(View view, MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN ) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
             switch (view.getId()) {
                 case R.id.joystick_button_up:
                     ModiLog.d("joystick_button_up down");
-                    mModiManager.sendJoystickState(ModiManager.STATE_JOYSTICK_UP);
+                    mModiManager.sendJoystickState(State.Joystick.UP);
                     break;
 
                 case R.id.joystick_button_down:
                     ModiLog.d("joystick_button_down down");
-                    mModiManager.sendJoystickState(ModiManager.STATE_JOYSTICK_DOWN);
+                    mModiManager.sendJoystickState(State.Joystick.DOWN);
                     break;
 
                 case R.id.joystick_button_left:
                     ModiLog.d("joystick_button_left down");
-                    mModiManager.sendJoystickState(ModiManager.STATE_JOYSTICK_LEFT);
+                    mModiManager.sendJoystickState(State.Joystick.LEFT);
                     break;
 
                 case R.id.joystick_button_right:
                     ModiLog.d("joystick_button_right down");
-                    mModiManager.sendJoystickState(ModiManager.STATE_JOYSTICK_RIGHT);
+                    mModiManager.sendJoystickState(State.Joystick.RIGHT);
                     break;
 
                 case R.id.button_press:
                     ModiLog.d("button_press down");
-                    mModiManager.sendButtonState(ModiManager.STATE_BUTTON_PRESSED);
+                    mModiManager.sendButtonState(State.Button.PRESSED);
                     break;
             }
             return true;
@@ -90,12 +91,12 @@ public class PageBFragment extends Fragment implements Button.OnTouchListener {
                 case R.id.joystick_button_left:
                 case R.id.joystick_button_right:
                     ModiLog.d("joystick_button up");
-                    mModiManager.sendJoystickState(ModiManager.STATE_JOYSTICK_UNPRESSED);
+                    mModiManager.sendJoystickState(State.Joystick.UNPRESSED);
                     break;
 
                 case R.id.button_press:
                     ModiLog.d("button_press up");
-                    mModiManager.sendButtonState(ModiManager.STATE_BUTTON_UNPRESSED);
+                    mModiManager.sendButtonState(State.Button.UNPRESSED);
                     break;
             }
             return true;

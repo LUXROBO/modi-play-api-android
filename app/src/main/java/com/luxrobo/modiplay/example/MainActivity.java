@@ -11,10 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.luxrobo.modiplay.api.client.ModiClient;
-import com.luxrobo.modiplay.api.client.NotifyStateClient;
 import com.luxrobo.modiplay.api.core.ModiManager;
-import com.luxrobo.modiplay.api.enums.Characteristics;
-import com.luxrobo.modiplay.api.listener.ManagerStateListener;
+import com.luxrobo.modiplay.api.enums.State;
 import com.luxrobo.modiplay.api.utils.ModiLog;
 import com.luxrobo.modiplay.example.adapter.DeviceItem;
 
@@ -73,30 +71,9 @@ public class MainActivity extends AppCompatActivity {
     private void initialize() {
 
         mModiManager = ModiManager.getInstance();
-        boolean initResult = mModiManager.init(getApplicationContext(),
-                new ManagerStateListener() {
-                    @Override
-                    public void onCompletedToInitialize() {
-                        ModiLog.d("Manager Initialized");
-                    }
-
-                    @Override
-                    public void onCompletedToDeinitialize() {
-                        ModiLog.d("Manager Deinitialized");
-                    }
-                });
-
-        mModiManager.setClient(mModiClient);
+        boolean initResult = mModiManager.init(getApplicationContext(), mModiClient);
 
         if (initResult) {
-
-            mModiManager.setNotifyStateClient(new NotifyStateClient() {
-                @Override
-                public void onChangedNotificationState(Characteristics characteristics, boolean enable) {
-                    ModiLog.d("onChangedNotificationState " + characteristics.name() + " " + enable);
-                }
-            });
-
             mModiManager.scan();
         }
     }
@@ -161,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBuzzerState(int state) {
+        public void onBuzzerState(State.Buzzer state) {
             ((PageBFragment) mFragments[1]).onBuzzerState(state);
         }
 
