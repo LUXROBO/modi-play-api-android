@@ -7,6 +7,10 @@ MODI Play API
 Easy😆 and fast💨 MODI Play API.
 
 
+* Free software: MIT license
+* Documentation: https://luxrobo.github.io/modi-play-api-android/index.html
+
+
 Quickstart
 -------
 
