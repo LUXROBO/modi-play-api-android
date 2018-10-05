@@ -1,10 +1,10 @@
 /*
- * Developement Part, Luxrobo INC., SEOUL, KOREA
- * Copyright(c) 2018 by Luxrobo Inc.
+ * Developement Part, LUXROBO INC., SEOUL, KOREA
+ * Copyright(c) 2018 by LUXROBO Inc.
  *
  * All rights reserved. No part of this work may be reproduced, stored in a
  * retrieval system, or transmitted by any means without prior written
- * Permission of Luxrobo Inc.
+ * Permission of LUXROBO Inc.
  */
 
 package com.luxrobo.modiplay.api.queue;
@@ -25,22 +25,18 @@ public class RequestQueue {
     private ArrayList<RequestJob> requestList;
 
     private RequestQueue() {
-
         requestList = new ArrayList<RequestJob>();
     }
 
     private static class Singleton {
-
         private static final RequestQueue instance = new RequestQueue();
     }
 
     public static RequestQueue getInstance() {
-
         return Singleton.instance;
     }
 
     public void putRequest(String method, BluetoothGattCharacteristic characteristic) {
-
         RequestJob requestJob = new RequestJob();
         requestJob.method = method;
         requestJob.characteristic = characteristic;
@@ -48,7 +44,6 @@ public class RequestQueue {
     }
 
     public void putRequest(String method, BluetoothGattCharacteristic characteristic, boolean notify) {
-
         RequestJob requestJob = new RequestJob();
         requestJob.method = method;
         requestJob.notify = notify;
@@ -57,7 +52,6 @@ public class RequestQueue {
     }
 
     public void putRequest(final RequestJob requestJob) {
-
         requestList.add(requestList.size(), requestJob);
     }
 
@@ -70,15 +64,11 @@ public class RequestQueue {
     }
 
     public void doneLastRequest(final BluetoothGattCharacteristic characteristic, int returnCode) {
-
         if (characteristic.getUuid().equals(lastRequestJob.characteristic.getUuid())) {
-
             if (returnCode != 0) {
-
                 lastRequestJob.trial = lastRequestJob.trial + 1;
 
                 if (this.lastRequestJob.trial <= 10) {
-
                     putRequest(this.lastRequestJob);
                 }
             }
@@ -88,47 +78,37 @@ public class RequestQueue {
     }
 
     public boolean onProcess() {
-
         if (this.lastRequestJob != null) {
-
             return true;
         } else {
-
             return false;
         }
     }
 
     public RequestJob getRequest() {
-
         if (doIndex > 0) {
-
             requestList.remove(0);
         }
 
         if (size() > 0) {
-
             doIndex = 1;
             setLastRequestJob(requestList.get(0));
             return getLastRequestJob();
         } else {
-
             doIndex = 0;
             return null;
         }
     }
 
     public int size() {
-
         return requestList.size();
     }
 
     public boolean hasJob() {
-
         return !requestList.isEmpty();
     }
 
     public void clear() {
-
         requestList.clear();
     }
 }

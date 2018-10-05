@@ -1,79 +1,86 @@
 /*
- * Developement Part, Luxrobo INC., SEOUL, KOREA
- * Copyright(c) 2018 by Luxrobo Inc.
+ * Developement Part, LUXROBO INC., SEOUL, KOREA
+ * Copyright(c) 2018 by LUXROBO Inc.
  *
  * All rights reserved. No part of this work may be reproduced, stored in a
  * retrieval system, or transmitted by any means without prior written
- * Permission of Luxrobo Inc.
+ * Permission of LUXROBO Inc.
  */
 
 package com.luxrobo.modiplay.api.client;
 
 import android.bluetooth.BluetoothDevice;
 
+import com.luxrobo.modiplay.api.enums.State;
 
 public interface ModiClient {
 
     /**
-     * 디바이스를 찾으면 호출되는 메소드
-     * @param device
-     * @param rssi
-     * @param scanRecord
+     * Callback when found device
+     *
+     * @param device     BluetoothDevice
+     * @param rssi       RSSI
+     * @param scanRecord ScanResult ScanRecord
      */
     void onFoundDevice(BluetoothDevice device, int rssi, byte[] scanRecord);
 
     /**
-     * 서비스가 발견되면 호출되는 메소드
+     * Callback when service discovered
      */
     void onDiscoveredService();
 
     /**
-     * 연결이 되면 호출되는 메소드
+     * Callback when device connected
      */
     void onConnected();
 
     /**
-     * 연결이 해제 되면 호출되는 메소드
+     * Callback when device disconnected
      */
     void onDisconnected();
 
     /**
-     * 스캔 상태를 알려주는 메소드
-     * @param isScaning 스캔중이면 true, 아니면 false
+     * Callback when changed the scan state
+     *
+     * @param isScaning
      */
     void onScanning(boolean isScaning);
 
     /**
-     * 네트워크 모듈에서 데이터를 받으면 호출되는 메소드
-     * @param data Raw Data를 String으로 표시한 값
+     * Callback when received data from MODI Network Module
+     *
+     * @param data display converted raw data to ascii string
      */
     void onReceivedData(String data);
 
     /**
-     * 네트워크 모듈에서 데이터를 받으면 호출되는 메소드
-     * @param data Raw Data
+     * Callback when received data from MODI Network Module
+     *
+     * @param data raw data
      */
     void onReceivedData(byte[] data);
 
     /**
-     * MODI Studio상에서 Send Data를 통해 받은 값
+     * Callback when received user data from `Send Data` on MODI Studio
+     *
      * @param data
      */
     void onReceivedUserData(int data);
 
     /**
-     * MODI Studio상에서 Buzzer의 값
-     * @param state on: 1, off: 0
+     * Callback when received buzzer state from MODI Studio
+     *
+     * @param state enum State.Buzzer
      */
-    void onBuzzerState(int state);
+    void onBuzzerState(State.Buzzer state);
 
     /**
-     * evne가 꺼지면 호출되는 메소드
+     * Callback when event off
      */
     void onOffEvent();
 
     /**
-     * 네트워크 모듈이 전원이 꺼지면서 연결이 끊긴것을 감지하는 메소드
+     * Callback when disconnected MODI Network Module that power off
      */
     void disconnectedByModulePowerOff();
 }

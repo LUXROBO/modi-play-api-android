@@ -57,10 +57,10 @@ public class PageAFragment extends Fragment {
 
                 final DeviceItem selectedItem = (DeviceItem) adapterView.getItemAtPosition(position);
 
-                openAlertPopup(selectedItem.getDeviceName().toUpperCase() + "와\n연결 하시겠습니까?", new AlertListener() {
+                openAlertPopup("Would you like to connect with " + selectedItem.getDeviceName().toUpperCase() + "?", new AlertListener() {
                     @Override
                     public void onOkClick() {
-                        selectedItemTextView.setText("연결중");
+                        selectedItemTextView.setText("Connecting");
                         mConnectedDevice = selectedItem;
                         mModiManager.connect(selectedItem.getDeviceAddress());
                     }
@@ -100,7 +100,7 @@ public class PageAFragment extends Fragment {
             @Override
             public void run() {
                 mDeviceList.clear();
-                selectedItemTextView.setText("검색중");
+                selectedItemTextView.setText("Searching...");
             }
         });
     }
@@ -124,7 +124,7 @@ public class PageAFragment extends Fragment {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                selectedItemTextView.setText("disconnected");
+                selectedItemTextView.setText("Disconnected");
 
                 scanButton.setVisibility(View.VISIBLE);
                 disconnectButton.setVisibility(View.GONE);
@@ -149,7 +149,7 @@ public class PageAFragment extends Fragment {
     }
 
     public void bluetoothOff() {
-        openConfirmPopup("블루투스 연결을 확인해 주세요.", new ConfirmListener() {
+        openConfirmPopup("Please check Bluetooth", new ConfirmListener() {
             @Override
             public void onOkClick() {
 
@@ -166,15 +166,15 @@ public class PageAFragment extends Fragment {
 
     public void openAlertPopup(final String message, final AlertListener lister) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("알림");
+        builder.setTitle("Notice");
         builder.setMessage(message);
-        builder.setPositiveButton("예",
+        builder.setPositiveButton("Yes",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         lister.onOkClick();
                     }
                 });
-        builder.setNegativeButton("아니오",
+        builder.setNegativeButton("No",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         lister.onCancelClick();
@@ -185,9 +185,9 @@ public class PageAFragment extends Fragment {
 
     public void openConfirmPopup(final String message, final ConfirmListener lister) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("알림");
+        builder.setTitle("Notice");
         builder.setMessage(message);
-        builder.setPositiveButton("확인",
+        builder.setPositiveButton("Confirm",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         lister.onOkClick();

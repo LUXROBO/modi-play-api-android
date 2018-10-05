@@ -85,8 +85,8 @@ public class LoadingActivity extends Activity {
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("Notice");
-                    builder.setMessage("설정 > 애플리케이션 관리자 > 권한에서 서비스 액세스를 허용해주세요.");
-                    builder.setPositiveButton("예",
+                    builder.setMessage("Please allow access to the service in [Settings> Application manager> Permission].");
+                    builder.setPositiveButton("Yes",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     Intent i = new Intent();
@@ -100,7 +100,7 @@ public class LoadingActivity extends Activity {
                                     finish();
                                 }
                             });
-                    builder.setNegativeButton("아니오",
+                    builder.setNegativeButton("No",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     initialize();

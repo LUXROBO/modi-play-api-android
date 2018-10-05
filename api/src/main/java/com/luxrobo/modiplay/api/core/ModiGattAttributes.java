@@ -1,10 +1,10 @@
 /*
- * Developement Part, Luxrobo INC., SEOUL, KOREA
- * Copyright(c) 2018 by Luxrobo Inc.
+ * Developement Part, LUXROBO INC., SEOUL, KOREA
+ * Copyright(c) 2018 by LUXROBO Inc.
  *
  * All rights reserved. No part of this work may be reproduced, stored in a
  * retrieval system, or transmitted by any means without prior written
- * Permission of Luxrobo Inc.
+ * Permission of LUXROBO Inc.
  */
 
 package com.luxrobo.modiplay.api.core;
@@ -23,7 +23,6 @@ public class ModiGattAttributes {
     public static final String DEVICE_TX_DESC = "2902";
 
     static {
-
         attributes.put(DEVICE_CHAR_SERVICE, "MODI SERVICE");
         attributes.put(DEVICE_CHAR_TX_RX, "DATA RX/TX");
         attributes.put(DEVICE_TX_DESC, "TX DESC");
