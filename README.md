@@ -27,7 +27,7 @@ Add the dependency
 
 ```gradle
 dependencies {
-        implementation 'com.github.LUXROBO:modi-play-api-android:0.0.0'
+        implementation 'com.github.LUXROBO:modi-play-api-android:0.1.0'
 }
 ```
 
