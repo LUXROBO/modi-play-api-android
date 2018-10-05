@@ -70,7 +70,7 @@ public interface ModiClient {
     /**
      * Callback when received buzzer state from MODI Studio
      *
-     * @param state enum ModiManager.State.Buzzer
+     * @param state enum State.Buzzer
      */
     void onBuzzerState(State.Buzzer state);
 
